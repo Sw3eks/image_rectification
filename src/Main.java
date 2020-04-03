@@ -11,6 +11,6 @@ public class Main {
 
         Calibration calibration = new Calibration();
 
-        calibration.calibrate();
+        calibration.takeImages();
     }
 }
