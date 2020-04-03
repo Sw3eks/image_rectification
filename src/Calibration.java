@@ -1,14 +1,18 @@
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.videoio.VideoCapture;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.opencv.calib3d.Calib3d.*;
+import static org.opencv.core.CvType.CV_64F;
+import static org.opencv.highgui.HighGui.*;
 
 public class Calibration {
     private final float calibrationSquareDimension = 0.024f; // meters
@@ -31,9 +35,48 @@ public class Calibration {
             }
             if (showResults) {
                 drawChessboardCorners(image, chessboardDimensions, pointBuf, found);
-                showImage(image);
+                imshow("Looking for Corners", image);
+                waitKey(0);
+                //showImage(image);
             }
         }
+    }
+
+    public int calibrate() {
+        Mat frame = new Mat();
+        Mat drawToFrame = new Mat();
+
+        Mat cameraMatrix = Mat.eye(3, 3, CV_64F);
+
+        Mat distanceCoefficients;
+
+        List<Mat> savedImages = new ArrayList<>();
+
+        List<MatOfPoint2f> markerCorners, rejectedCandidates = new ArrayList<>();
+
+        VideoCapture vid = new VideoCapture();
+        if (!vid.isOpened()) {
+            return 0;
+        }
+        int framesPerSecond = 20;
+        namedWindow("Webcam", WINDOW_AUTOSIZE);
+
+        while (vid.read(frame)) {
+            MatOfPoint2f foundPoints = new MatOfPoint2f();
+            boolean found;
+
+            found = findChessboardCorners(frame, chessboardDimensions, foundPoints, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
+            frame.copyTo(drawToFrame);
+            drawChessboardCorners(drawToFrame, chessboardDimensions, foundPoints, found);
+            if (found) {
+                imshow("Webcam", drawToFrame);
+            } else {
+                imshow("Webcam", frame);
+            }
+            int character = waitKey(1000 / framesPerSecond);
+        }
+
+        return 0;
     }
 
     private void showImage(Mat matrix) {

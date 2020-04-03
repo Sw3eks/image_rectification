@@ -8,5 +8,9 @@ public class Main {
 
         Rectification rectification = new Rectification();
         rectification.setUp();
+
+        Calibration calibration = new Calibration();
+
+        calibration.calibrate();
     }
 }
