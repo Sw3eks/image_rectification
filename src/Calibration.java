@@ -18,103 +18,117 @@ public class Calibration {
     private final float calibrationSquareDimension = 0.024f; // meters
     private final Size chessboardDimensions = new Size(9, 6);
 
-    public void createKnownBoardPosition(Size boardSize, float squareEdgeLength, List<Mat> corners) {
-        for (int i = 0; i < boardSize.height; i++) {
-            for (int j = 0; j < boardSize.width; j++) {
-                corners.add(new MatOfPoint3f(new Point3(j * squareEdgeLength, i * squareEdgeLength, 0.0f)));
+    private VideoCapture capture;
+    private List<Mat> imagePoints;
+    private List<Mat> objectPoints;
+    private MatOfPoint3f obj;
+    private MatOfPoint2f imageCorners;
+    private Mat intrinsic;
+    private Mat distCoeffs;
+
+    /**
+     * Init all the (global) variables needed in the controller
+     */
+    protected void init() {
+        this.capture = new VideoCapture();
+        this.obj = new MatOfPoint3f();
+        this.imageCorners = new MatOfPoint2f();
+        this.imagePoints = new ArrayList<>();
+        this.objectPoints = new ArrayList<>();
+        this.intrinsic = new Mat(3, 3, CV_64F);
+        this.distCoeffs = new Mat();
+    }
+
+    public void createKnownBoardPosition() {
+        for (int i = 0; i < chessboardDimensions.height; i++) {
+            for (int j = 0; j < chessboardDimensions.width; j++) {
+                obj.push_back(new MatOfPoint3f(new Point3(j * calibrationSquareDimension, i * calibrationSquareDimension, 0.0f)));
             }
         }
     }
 
-    public void getChessBoardCorners(List<Mat> images, List<Mat> allFoundCorners, boolean showResults) {
+    public void getChessBoardCorners(List<Mat> images, boolean showResults) {
         for (Mat image : images) {
             MatOfPoint2f pointBuf = new MatOfPoint2f();
             boolean found = findChessboardCorners(image, chessboardDimensions, pointBuf, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
             if (found) {
-                allFoundCorners.add(pointBuf);
+                imageCorners.push_back(pointBuf);
             }
             if (showResults) {
                 drawChessboardCorners(image, chessboardDimensions, pointBuf, found);
                 imshow("Looking for Corners", image);
                 waitKey(0);
-                //showImage(image);
             }
         }
     }
 
-    public int takeImages() {
+    public void takeImages() {
+        init();
         Mat frame = new Mat();
         Mat drawToFrame = new Mat();
 
-        Mat cameraMatrix = Mat.eye(3, 3, CV_64F);
-
-        Mat distanceCoefficients = new Mat();
-
-        List<Mat> savedImages = new ArrayList<>();
-
-        List<MatOfPoint2f> markerCorners, rejectedCandidates = new ArrayList<>();
-
-        VideoCapture vid = new VideoCapture();
-        vid.open(0);
-        if (!vid.isOpened()) {
-            return 0;
+        capture.open(0);
+        if (!capture.isOpened()) {
+            return;
         }
         int framesPerSecond = 20;
         namedWindow("Webcam", WINDOW_AUTOSIZE);
 
-        while (vid.read(frame)) {
-            MatOfPoint2f foundPoints = new MatOfPoint2f();
-            boolean found;
+        while (capture.read(frame)) {
 
-            found = findChessboardCorners(frame, chessboardDimensions, foundPoints, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
-            frame.copyTo(drawToFrame);
-            drawChessboardCorners(drawToFrame, chessboardDimensions, foundPoints, found);
-            if (found) {
-                imshow("Webcam", drawToFrame);
-            } else {
-                imshow("Webcam", frame);
-            }
-            int character = waitKey(1000 / framesPerSecond);
+            capture.read(frame);
 
-            switch (character) {
-                case ' ':
-                    if (found) {
-                        Mat temp = new Mat();
-                        frame.copyTo(temp);
-                        savedImages.add(temp);
-                    }
-                    break;
-                case 13:
-                    if (savedImages.size() > 15) {
-                        cameraCalibration(savedImages, chessboardDimensions, calibrationSquareDimension, cameraMatrix);
-                    }
-                    break;
-                case 27:
-                    return 0;
-                default:
-                    break;
+            if (!frame.empty()) {
+                boolean found = findChessboardCorners(frame, chessboardDimensions, imageCorners, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
+                frame.copyTo(drawToFrame);
+
+                drawChessboardCorners(drawToFrame, chessboardDimensions, imageCorners, found);
+
+                if (found) {
+                    imshow("Webcam", drawToFrame);
+                } else {
+                    imshow("Webcam", frame);
+                }
+                int character = waitKey(1000 / framesPerSecond);
+
+                switch (character) {
+                    case ' ':
+                        if (found) {
+                            this.imagePoints.add(imageCorners);
+                            imageCorners = new MatOfPoint2f();
+                            this.objectPoints.add(obj);
+                        }
+                        break;
+                    case 13:
+                        if (objectPoints.size() > 15) {
+                            cameraCalibration();
+                        }
+                        break;
+                    case 27:
+                        return;
+                    default:
+                        break;
+                }
             }
         }
 
-        return 0;
     }
 
-    public void cameraCalibration(List<Mat> calibrationImages, Size boardSize, float squareEdgeLength, Mat cameraMatrix) {
-        List<Mat> checkerBoardImageSpacePoints = new ArrayList<>();
-        getChessBoardCorners(calibrationImages, checkerBoardImageSpacePoints, false);
+    public void cameraCalibration() {
 
-        List<Mat> worldSpaceCornerPoints = new ArrayList<>();
+        //getChessBoardCorners(calibrationImages, checkerBoardImageSpacePoints, false);
 
-        createKnownBoardPosition(boardSize, squareEdgeLength, worldSpaceCornerPoints);
-        // TODO: Fix this shit
-        // worldSpaceCornerPoints.add(checkerBoardImageSpacePoints.size(), worldSpaceCornerPoints))
+        createKnownBoardPosition();
 
         List<Mat> rVectors = new ArrayList<>();
         List<Mat> tVectors = new ArrayList<>();
 
-        Mat distanceCoefficients = Mat.zeros(8, 1, CV_64F);
+        intrinsic.put(0, 0, 1);
+        intrinsic.put(1, 1, 1);
 
-        calibrateCamera(worldSpaceCornerPoints, checkerBoardImageSpacePoints, boardSize, cameraMatrix, distanceCoefficients, rVectors, tVectors);
+        distCoeffs = Mat.zeros(8, 1, CV_64F);
+
+        calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
     }
 
     public boolean saveCameraCalibration(String name, Mat cameraMatrix, Mat distanceCoefficients) {
