@@ -5,10 +5,11 @@ import org.opencv.videoio.VideoCapture;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.opencv.calib3d.Calib3d.*;
 import static org.opencv.core.CvType.CV_64F;
@@ -102,6 +103,10 @@ public class Calibration {
                     case 13:
                         if (objectPoints.size() > 15) {
                             cameraCalibration();
+                            boolean result = saveCameraCalibration();
+                            if (result) {
+                                System.out.println("Done");
+                            }
                         }
                         break;
                     case 27:
@@ -131,9 +136,45 @@ public class Calibration {
         calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
     }
 
-    public boolean saveCameraCalibration(String name, Mat cameraMatrix, Mat distanceCoefficients) {
-        // ofstream outStream(name);
-//TBD
+    public boolean saveCameraCalibration() {
+        FileWriter fStream = null;
+        try {
+            fStream = new FileWriter("out.txt", true);
+            BufferedWriter out = new BufferedWriter(fStream);
+
+            int rows = intrinsic.rows();
+            int columns = intrinsic.cols();
+
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    double value = intrinsic.get(r, c)[0];
+                    out.write("Row: " + r + " Col: " + c + " Value: " + value + "\n");
+                }
+            }
+            rows = distCoeffs.rows();
+            columns = distCoeffs.cols();
+
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    double value = distCoeffs.get(r, c)[0];
+                    out.write("Row: " + r + " Col: " + c + " Value: " + value + "\n");
+                }
+            }
+            //Close the output stream
+            out.close();
+            return true;
+        } catch (IOException e) {
+            System.out.println("Exception: " + e.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        } finally {
+            try {
+                if (fStream != null) {
+                    fStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return false;
     }
 
