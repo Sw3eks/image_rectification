@@ -1,5 +1,6 @@
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 
 import java.io.BufferedWriter;
@@ -13,6 +14,7 @@ import java.util.logging.Logger;
 import static org.opencv.calib3d.Calib3d.*;
 import static org.opencv.core.CvType.CV_64F;
 import static org.opencv.highgui.HighGui.*;
+import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Calibration {
     private final float calibrationSquareDimension = 0.024f; // meters
@@ -198,6 +200,19 @@ public class Calibration {
 
         System.out.println("PPM1: " + PPM1.dump());
         System.out.println("PPM2: " + PPM2.dump());
+
+        Mat calibration_image_1 = Imgcodecs.imread("./res/calibration/calib0.jpg");
+        Mat calibration_image_2 = Imgcodecs.imread("./res/calibration/calib1.jpg");
+        Mat undistortedImage1 = new Mat();
+        Mat undistortedImage2 = new Mat();
+        Calib3d.undistort(calibration_image_1, undistortedImage1, intrinsic, distCoeffs);
+        Calib3d.undistort(calibration_image_2, undistortedImage2, intrinsic, distCoeffs);
+        imwrite("./res/calibration/undistort1.jpg", undistortedImage1);
+        imwrite("./res/calibration/undistort2.jpg", undistortedImage2);
+//        MatOfPoint2f undistortedPoints1 = new MatOfPoint2f();
+//        MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
+//        Calib3d.undistortPoints(imagePoints.get(indexFirst), undistortedPoints1, intrinsic, distCoeffs, new Mat(), intrinsic);
+//        Calib3d.undistortPoints(imagePoints.get(indexSecond), undistortedPoints2, intrinsic, distCoeffs, new Mat(), intrinsic);
 
         Rectification rectification = new Rectification();
         rectification.doRectification(PPM1, PPM2, imagePoints);

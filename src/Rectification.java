@@ -11,8 +11,8 @@ import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Rectification {
 
-    private static final String imagePath = "/res/images/";
-    private static final String calibrationPath = "/res/calibration/";
+    private static final String imagePath = "./res/images/";
+    private static final String calibrationPath = "./res/calibration/";
 
     public void setUp() {
         List<Mat> images = new ArrayList<>();
@@ -36,11 +36,11 @@ public class Rectification {
         imwrite("./res/calibration/recti1.jpg", rectifiedImage1);
         imwrite("./res/calibration/recti2.jpg", rectifiedImage2);
 
-//        MatOfPoint2f imagePointsTransformed1 = new MatOfPoint2f();
-//        MatOfPoint2f imagePointsTransformed2 = new MatOfPoint2f();
-//
-//        Core.perspectiveTransform(imagePoints1, imagePointsTransformed1, rectificationModel.getT1());
-//        Core.perspectiveTransform(imagePoints2, imagePointsTransformed2, rectificationModel.getT2());
+        MatOfPoint2f imagePointsTransformed1 = new MatOfPoint2f();
+        MatOfPoint2f imagePointsTransformed2 = new MatOfPoint2f();
+
+        Core.perspectiveTransform(imagePoints.get(0), imagePointsTransformed1, rectificationModel.getT1());
+        Core.perspectiveTransform(imagePoints.get(1), imagePointsTransformed2, rectificationModel.getT2());
     }
 
     public RectificationModel rectify(Mat Po1, Mat Po2) {
@@ -121,4 +121,64 @@ public class Rectification {
         return new RectificationModel(T1, T2, Pn1, Pn2);
     }
 
+    public void drawEpipolarLines(Mat image1, Mat image2) {
+//        Mat F = Calib3d.findFundamentalMat(
+//                new MatOfPoint2f(imagePoints1.submat(0, 8, 0, 1)),
+//                new MatOfPoint2f(imagePoints2.submat(0, 8, 0, 1)));
+//        System.out.println("Fundamental Matrix F: \n" + F.dump());
+//
+//        // Find epipolar lines
+//        Mat epipolarLines1 = new Mat();
+//        Mat epipolarLines2 = new Mat();
+//        Calib3d.computeCorrespondEpilines(imagePoints2.submat(0, 8, 0, 1), 2, F, epipolarLines1);
+//        Calib3d.computeCorrespondEpilines(imagePoints1.submat(0, 8, 0, 1), 1, F, epipolarLines2);
+//
+//        Mat img1WithLines = drawLines(image1, epipolarLines1);
+//        Mat img2WithLines = drawLines(image2, epipolarLines2);
+//
+//        imwrite("./res/calibration/epipol1.jpg", img1WithLines);
+//        imwrite("./res/calibration/epipol2.jpg", img2WithLines);
+    }
+
+    private Mat drawLines(Mat image1, Mat epipolarLines1) {
+        Mat resultImg = new Mat();
+        image1.copyTo(resultImg);
+        int epiLinesCount = epipolarLines1.rows();
+
+        double a, b, c;
+
+        for (int line = 0; line < epiLinesCount; line++) {
+            a = epipolarLines1.get(line, 0)[0];
+            b = epipolarLines1.get(line, 0)[1];
+            c = epipolarLines1.get(line, 0)[2];
+
+            int x0 = 0;
+            int y0 = (int) (-(c + a * x0) / b);
+            int x1 = resultImg.cols() / 2;
+            int y1 = (int) (-(c + a * x1) / b);
+
+            Point p1 = new Point(x0, y0);
+            Point p2 = new Point(x1, y1);
+            Scalar color = new Scalar(255, 0, 0);
+            Imgproc.line(resultImg, p1, p2, color);
+
+        }
+        for (int line = 0; line < epiLinesCount; line++) {
+            a = epipolarLines1.get(line, 0)[0];
+            b = epipolarLines1.get(line, 0)[1];
+            c = epipolarLines1.get(line, 0)[2];
+
+            int x0 = resultImg.cols() / 2;
+            int y0 = (int) (-(c + a * x0) / b);
+            int x1 = resultImg.cols();
+            int y1 = (int) (-(c + a * x1) / b);
+
+            Point p1 = new Point(x0, y0);
+            Point p2 = new Point(x1, y1);
+            Scalar color = new Scalar(255, 0, 0);
+            Imgproc.line(resultImg, p1, p2, color);
+
+        }
+        return resultImg;
+    }
 }
