@@ -1,49 +1,51 @@
 package models;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint2f;
 
 public class RectificationModel {
-    private Mat T1;
-    private Mat T2;
-    private Mat Pn1;
-    private Mat Pn2;
+    private Mat rectifiedImage1;
+    private Mat rectifiedImage2;
 
-    public RectificationModel(Mat t1, Mat t2, Mat pn1, Mat pn2) {
-        T1 = t1;
-        T2 = t2;
-        Pn1 = pn1;
-        Pn2 = pn2;
+    private MatOfPoint2f rectifiedImagePoints1;
+    private MatOfPoint2f rectifiedImagePoints2;
+
+    public RectificationModel(Mat rectifiedImage1, Mat rectifiedImage2, MatOfPoint2f rectifiedImagePoints1, MatOfPoint2f rectifiedImagePoints2) {
+        this.rectifiedImage1 = rectifiedImage1;
+        this.rectifiedImage2 = rectifiedImage2;
+        this.rectifiedImagePoints1 = rectifiedImagePoints1;
+        this.rectifiedImagePoints2 = rectifiedImagePoints2;
     }
 
-    public Mat getT1() {
-        return T1;
+    public Mat getRectifiedImage1() {
+        return rectifiedImage1;
     }
 
-    public void setT1(Mat t1) {
-        T1 = t1;
+    public void setRectifiedImage1(Mat rectifiedImage1) {
+        this.rectifiedImage1 = rectifiedImage1;
     }
 
-    public Mat getT2() {
-        return T2;
+    public Mat getRectifiedImage2() {
+        return rectifiedImage2;
     }
 
-    public void setT2(Mat t2) {
-        T2 = t2;
+    public void setRectifiedImage2(Mat rectifiedImage2) {
+        this.rectifiedImage2 = rectifiedImage2;
     }
 
-    public Mat getPn1() {
-        return Pn1;
+    public MatOfPoint2f getRectifiedImagePoints1() {
+        return rectifiedImagePoints1;
     }
 
-    public void setPn1(Mat pn1) {
-        Pn1 = pn1;
+    public void setRectifiedImagePoints1(MatOfPoint2f rectifiedImagePoints1) {
+        this.rectifiedImagePoints1 = rectifiedImagePoints1;
     }
 
-    public Mat getPn2() {
-        return Pn2;
+    public MatOfPoint2f getRectifiedImagePoints2() {
+        return rectifiedImagePoints2;
     }
 
-    public void setPn2(Mat pn2) {
-        Pn2 = pn2;
+    public void setRectifiedImagePoints2(MatOfPoint2f rectifiedImagePoints2) {
+        this.rectifiedImagePoints2 = rectifiedImagePoints2;
     }
 }

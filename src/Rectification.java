@@ -1,4 +1,5 @@
 import models.RectificationModel;
+import models.RectifyModel;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -23,11 +24,11 @@ public class Rectification {
         images.add(image_2);
     }
 
-    public void doRectification(Mat ppm1, Mat ppm2, List<Mat> imagePoints) {
+    public RectificationModel doRectification(Mat ppm1, Mat ppm2, List<Mat> imagePoints) {
         Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "calib0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "calib1.jpg");
 
-        RectificationModel rectificationModel = rectify(ppm1, ppm2);
+        RectifyModel rectificationModel = rectify(ppm1, ppm2);
 
         Mat rectifiedImage1 = new Mat();
         Mat rectifiedImage2 = new Mat();
@@ -41,9 +42,11 @@ public class Rectification {
 
         Core.perspectiveTransform(imagePoints.get(0), imagePointsTransformed1, rectificationModel.getT1());
         Core.perspectiveTransform(imagePoints.get(1), imagePointsTransformed2, rectificationModel.getT2());
+
+        return new RectificationModel(rectifiedImage1, rectifiedImage2, imagePointsTransformed1, imagePointsTransformed2);
     }
 
-    public RectificationModel rectify(Mat Po1, Mat Po2) {
+    public RectifyModel rectify(Mat Po1, Mat Po2) {
         Mat A1 = new Mat();
         Mat A2 = new Mat();
         Mat R1 = new Mat();
@@ -118,26 +121,26 @@ public class Rectification {
         Core.gemm(Pn1_sub, PPM1_sub.inv(), 1, new Mat(), 0, T1, 0);
         Core.gemm(Pn2_sub, PPM2_sub.inv(), 1, new Mat(), 0, T2, 0);
 
-        return new RectificationModel(T1, T2, Pn1, Pn2);
+        return new RectifyModel(T1, T2, Pn1, Pn2);
     }
 
-    public void drawEpipolarLines(Mat image1, Mat image2) {
-//        Mat F = Calib3d.findFundamentalMat(
-//                new MatOfPoint2f(imagePoints1.submat(0, 8, 0, 1)),
-//                new MatOfPoint2f(imagePoints2.submat(0, 8, 0, 1)));
-//        System.out.println("Fundamental Matrix F: \n" + F.dump());
-//
-//        // Find epipolar lines
-//        Mat epipolarLines1 = new Mat();
-//        Mat epipolarLines2 = new Mat();
-//        Calib3d.computeCorrespondEpilines(imagePoints2.submat(0, 8, 0, 1), 2, F, epipolarLines1);
-//        Calib3d.computeCorrespondEpilines(imagePoints1.submat(0, 8, 0, 1), 1, F, epipolarLines2);
-//
-//        Mat img1WithLines = drawLines(image1, epipolarLines1);
-//        Mat img2WithLines = drawLines(image2, epipolarLines2);
-//
-//        imwrite("./res/calibration/epipol1.jpg", img1WithLines);
-//        imwrite("./res/calibration/epipol2.jpg", img2WithLines);
+    public void drawEpipolarLines(Mat image1, Mat image2, MatOfPoint2f imagePoints1, MatOfPoint2f imagePoints2) {
+        Mat F = Calib3d.findFundamentalMat(
+                new MatOfPoint2f(imagePoints1.submat(0, 8, 0, 1)),
+                new MatOfPoint2f(imagePoints2.submat(0, 8, 0, 1)));
+        System.out.println("Fundamental Matrix F: \n" + F.dump());
+
+        // Find epipolar lines
+        Mat epipolarLines1 = new Mat();
+        Mat epipolarLines2 = new Mat();
+        Calib3d.computeCorrespondEpilines(imagePoints2.submat(0, 8, 0, 1), 2, F, epipolarLines1);
+        Calib3d.computeCorrespondEpilines(imagePoints1.submat(0, 8, 0, 1), 1, F, epipolarLines2);
+
+        Mat img1WithLines = drawLines(image1, epipolarLines1);
+        Mat img2WithLines = drawLines(image2, epipolarLines2);
+
+        imwrite("./res/calibration/epipol1.jpg", img1WithLines);
+        imwrite("./res/calibration/epipol2.jpg", img2WithLines);
     }
 
     private Mat drawLines(Mat image1, Mat epipolarLines1) {

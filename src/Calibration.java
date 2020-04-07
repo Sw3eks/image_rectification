@@ -1,3 +1,4 @@
+import models.RectificationModel;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -96,7 +97,7 @@ public class Calibration {
                 switch (character) {
                     case 32: // 32 = space key event
                         if (found) {
-                            //imwrite("./res/calibration/calib" + objectPoints.size() + ".jpg", frame);
+                            imwrite("./res/calibration/calib" + objectPoints.size() + ".jpg", frame);
                             System.out.println("found");
                             this.imagePoints.add(imageCorners);
                             imageCorners = new MatOfPoint2f();
@@ -209,12 +210,18 @@ public class Calibration {
         Calib3d.undistort(calibration_image_2, undistortedImage2, intrinsic, distCoeffs);
         imwrite("./res/calibration/undistort1.jpg", undistortedImage1);
         imwrite("./res/calibration/undistort2.jpg", undistortedImage2);
-//        MatOfPoint2f undistortedPoints1 = new MatOfPoint2f();
-//        MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
-//        Calib3d.undistortPoints(imagePoints.get(indexFirst), undistortedPoints1, intrinsic, distCoeffs, new Mat(), intrinsic);
-//        Calib3d.undistortPoints(imagePoints.get(indexSecond), undistortedPoints2, intrinsic, distCoeffs, new Mat(), intrinsic);
+        MatOfPoint2f undistortedPoints1 = new MatOfPoint2f();
+        MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
+        Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(0), undistortedPoints1, intrinsic, distCoeffs, new Mat(), intrinsic);
+        Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(1), undistortedPoints2, intrinsic, distCoeffs, new Mat(), intrinsic);
 
         Rectification rectification = new Rectification();
-        rectification.doRectification(PPM1, PPM2, imagePoints);
+        RectificationModel rectificationModel = rectification.doRectification(PPM1, PPM2, imagePoints);
+
+        rectification.drawEpipolarLines(
+                rectificationModel.getRectifiedImage1(),
+                rectificationModel.getRectifiedImage2(),
+                rectificationModel.getRectifiedImagePoints1(),
+                rectificationModel.getRectifiedImagePoints2());
     }
 }
