@@ -73,7 +73,7 @@ public class Calibration {
             return;
         }
         int framesPerSecond = 20;
-        namedWindow("Webcam", WINDOW_AUTOSIZE);
+        namedWindow("Webcam", WINDOW_AUTOSIZE); // 640 * 480
 
         while (capture.read(frame)) {
 
@@ -93,14 +93,23 @@ public class Calibration {
                 int character = waitKey(1000 / framesPerSecond);
 
                 switch (character) {
-                    case ' ':
+                    case 32:
                         if (found) {
+                            System.out.println("found");
                             this.imagePoints.add(imageCorners);
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
                         }
+                        if (objectPoints.size() > 15) {
+                            cameraCalibration();
+                            boolean result = saveCameraCalibration();
+                            if (result) {
+                                System.out.println("Done");
+                            }
+                        }
                         break;
                     case 13:
+                        System.out.println("Enter");
                         if (objectPoints.size() > 15) {
                             cameraCalibration();
                             boolean result = saveCameraCalibration();
@@ -110,6 +119,7 @@ public class Calibration {
                         }
                         break;
                     case 27:
+                        System.out.println("Esc");
                         return;
                     default:
                         break;
@@ -121,7 +131,8 @@ public class Calibration {
 
     public void cameraCalibration() {
 
-        //getChessBoardCorners(calibrationImages, checkerBoardImageSpacePoints, false);
+        // getChessBoardCorners(calibrationImages, checkerBoardImageSpacePoints, false);
+        // imwrite("./res/calibration/calib1.jpg", obj);
 
         createKnownBoardPosition();
 
@@ -133,7 +144,8 @@ public class Calibration {
 
         distCoeffs = Mat.zeros(8, 1, CV_64F);
 
-        calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
+        double result = calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
+        System.out.println("Result: " + result);
     }
 
     public boolean saveCameraCalibration() {
@@ -142,24 +154,9 @@ public class Calibration {
             fStream = new FileWriter("out.txt", true);
             BufferedWriter out = new BufferedWriter(fStream);
 
-            int rows = intrinsic.rows();
-            int columns = intrinsic.cols();
+            out.write("Matrix: " + intrinsic.dump());
+            out.write("\nDist: " + distCoeffs.dump());
 
-            for (int r = 0; r < rows; r++) {
-                for (int c = 0; c < columns; c++) {
-                    double value = intrinsic.get(r, c)[0];
-                    out.write("Row: " + r + " Col: " + c + " Value: " + value + "\n");
-                }
-            }
-            rows = distCoeffs.rows();
-            columns = distCoeffs.cols();
-
-            for (int r = 0; r < rows; r++) {
-                for (int c = 0; c < columns; c++) {
-                    double value = distCoeffs.get(r, c)[0];
-                    out.write("Row: " + r + " Col: " + c + " Value: " + value + "\n");
-                }
-            }
             //Close the output stream
             out.close();
             return true;
