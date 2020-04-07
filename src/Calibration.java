@@ -1,11 +1,10 @@
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -175,27 +174,26 @@ public class Calibration {
         return false;
     }
 
-    // Method to showImages by A. Siebert -> Skript
-    private void showImage(Mat matrix) {
-        MatOfByte matOfByte = new MatOfByte();  // subclass of org.opencv.core.Mat
-        Imgcodecs.imencode(".png", matrix, matOfByte);
-        byte[] byteArray = matOfByte.toArray();
-        BufferedImage bufImage = null;  // subclass of java.awt.image
-        try {
-            InputStream inStream = new ByteArrayInputStream(byteArray);
-            bufImage = ImageIO.read(inStream);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
-        JFrame frame = new JFrame("Looking for Corners");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JLabel imageLabel = null;
-        if (bufImage != null) {
-            imageLabel = new JLabel(new ImageIcon(bufImage));
-        }
-        frame.getContentPane().add(imageLabel);
-        frame.setLocationRelativeTo(null);
-        frame.pack();
-        frame.setVisible(true);
+    public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors) {
+        Mat r1 = rVectors.get(0);
+        Mat r2 = rVectors.get(1);
+        Mat R1 = new Mat();
+        Mat R2 = new Mat();
+        Calib3d.Rodrigues(r1, R1);
+        Calib3d.Rodrigues(r2, R2);
+
+        Mat t1 = tVectors.get(0);
+        Mat t2 = tVectors.get(1);
+        Mat Rt1 = new Mat();
+        Mat Rt2 = new Mat();
+        Core.hconcat(List.of(R1, t1), Rt1);
+        Core.hconcat(List.of(R2, t2), Rt2);
+        System.out.println("Rt1: " + Rt1.dump());
+
+        Mat PPM1 = new Mat();
+        Mat PPM2 = new Mat();
+        Core.gemm(intrinsic, Rt1, 1, new Mat(), 0, PPM1, 0);
+        Core.gemm(intrinsic, Rt2, 1, new Mat(), 0, PPM2, 0);
+
     }
 }
