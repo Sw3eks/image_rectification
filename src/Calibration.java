@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import static org.opencv.calib3d.Calib3d.*;
 import static org.opencv.core.CvType.CV_64F;
 import static org.opencv.highgui.HighGui.*;
-import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Calibration {
     private final float calibrationSquareDimension = 0.024f; // meters
@@ -133,7 +132,6 @@ public class Calibration {
     public void cameraCalibration() {
 
         // getChessBoardCorners(calibrationImages, checkerBoardImageSpacePoints, false);
-        // imwrite("./res/calibration/calib1.jpg", obj);
 
         createKnownBoardPosition();
 
@@ -202,6 +200,6 @@ public class Calibration {
         System.out.println("PPM2: " + PPM2.dump());
 
         Rectification rectification = new Rectification();
-        rectification.doRectification(PPM1, PPM2);
+        rectification.doRectification(PPM1, PPM2, imagePoints);
     }
 }
