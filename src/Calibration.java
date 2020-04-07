@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import static org.opencv.calib3d.Calib3d.*;
 import static org.opencv.core.CvType.CV_64F;
 import static org.opencv.highgui.HighGui.*;
+import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Calibration {
     private final float calibrationSquareDimension = 0.024f; // meters
@@ -92,14 +93,15 @@ public class Calibration {
                 int character = waitKey(1000 / framesPerSecond);
 
                 switch (character) {
-                    case 32:
+                    case 32: // 32 = space key event
                         if (found) {
+                            //imwrite("./res/calibration/calib" + objectPoints.size() + ".jpg", frame);
                             System.out.println("found");
                             this.imagePoints.add(imageCorners);
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
                         }
-                        if (objectPoints.size() > 15) {
+                        if (objectPoints.size() > 1) {
                             cameraCalibration();
                             boolean result = saveCameraCalibration();
                             if (result) {
@@ -107,7 +109,7 @@ public class Calibration {
                             }
                         }
                         break;
-                    case 13:
+                    case 13: // 13 = enter key event
                         System.out.println("Enter");
                         if (objectPoints.size() > 15) {
                             cameraCalibration();
@@ -117,7 +119,7 @@ public class Calibration {
                             }
                         }
                         break;
-                    case 27:
+                    case 27: // 27 = esc key event
                         System.out.println("Esc");
                         return;
                     default:
@@ -144,6 +146,7 @@ public class Calibration {
         distCoeffs = Mat.zeros(8, 1, CV_64F);
 
         double result = calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
+        calculatePPM(rVectors, tVectors);
         System.out.println("Result: " + result);
     }
 
@@ -195,5 +198,10 @@ public class Calibration {
         Core.gemm(intrinsic, Rt1, 1, new Mat(), 0, PPM1, 0);
         Core.gemm(intrinsic, Rt2, 1, new Mat(), 0, PPM2, 0);
 
+        System.out.println("PPM1: " + PPM1.dump());
+        System.out.println("PPM2: " + PPM2.dump());
+
+        Rectification rectification = new Rectification();
+        rectification.doRectification(PPM1, PPM2);
     }
 }
