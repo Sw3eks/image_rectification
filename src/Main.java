@@ -1,6 +1,7 @@
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import utils.Utils;
 
 public class Main {
     private static final String calibrationPath = "./res/calibration/";
@@ -16,10 +17,19 @@ public class Main {
 
         calibration.takeImages();
 
-        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "recti1.jpg");
-        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "recti2.jpg");
-        MatchingPointsDetector detector = new MatchingPointsDetector(calibration_image_1, calibration_image_2);
-        detector.matchImages();
+        Mat calibration_image_1 = Imgcodecs.imread(imagePath + "madera_1.jpg");
+        Mat calibration_image_2 = Imgcodecs.imread(imagePath + "madera_2.jpg");
+
+//        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "recti1.jpg");
+//        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "recti2.jpg");
+
+        Utils utils = new Utils();
+
+
+        utils.computeEpiLines(calibration_image_1, calibration_image_2);
+
+//        MatchingPointsDetector detector = new MatchingPointsDetector(calibration_image_1, calibration_image_2);
+//        detector.matchImages();
 
     }
 }

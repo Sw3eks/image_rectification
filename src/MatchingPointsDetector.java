@@ -38,7 +38,7 @@ public class MatchingPointsDetector {
         descriptors1.convertTo(descriptors1, CV_32F);
         descriptors2.convertTo(descriptors2, CV_32F);
         DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
-        ArrayList<MatOfDMatch> matches = new ArrayList<>();
+        List<MatOfDMatch> matches = new ArrayList<>();
         descriptorMatcher.knnMatch(descriptors1, descriptors2, matches, 1);
 
         MatOfPoint2f srcPoints = new MatOfPoint2f();
@@ -91,7 +91,6 @@ public class MatchingPointsDetector {
         }
         srcFilteredMat.fromList(srcFilteredPoints);
         dstFilteredMat.fromList(dstFilteredPoints);
-
     }
 
 
@@ -107,12 +106,12 @@ public class MatchingPointsDetector {
         extractor.compute(img2, keyPoints2, descriptors2);
     }
 
-    private void convertUnsortedKeyPointsIntoPoint2f(MatOfKeyPoint keyPoints1, MatOfKeyPoint keyPoints2, ArrayList<MatOfDMatch> matches, MatOfPoint2f srcPoints, MatOfPoint2f dstPoints) {
+    private void convertUnsortedKeyPointsIntoPoint2f(MatOfKeyPoint keyPoints1, MatOfKeyPoint keyPoints2, List<MatOfDMatch> matches, MatOfPoint2f srcPoints, MatOfPoint2f dstPoints) {
         List<KeyPoint> kplist1 = keyPoints1.toList();
         List<KeyPoint> kplist2 = keyPoints2.toList();
 
-        ArrayList<Point> pointsList1 = new ArrayList<Point>();
-        ArrayList<Point> pointsList2 = new ArrayList<Point>();
+        ArrayList<Point> pointsList1 = new ArrayList<>();
+        ArrayList<Point> pointsList2 = new ArrayList<>();
 
         for (MatOfDMatch match : matches) {
             pointsList1.add(kplist1.get((int) (match.get(0, 0)[0])).pt);
