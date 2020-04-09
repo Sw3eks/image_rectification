@@ -17,19 +17,26 @@ public class Main {
 
         calibration.takeImages();
 
-        Mat calibration_image_1 = Imgcodecs.imread(imagePath + "madera_1.jpg");
-        Mat calibration_image_2 = Imgcodecs.imread(imagePath + "madera_2.jpg");
+        Mat calibration_image_1 = Imgcodecs.imread(imagePath + "rect_image_1.jpg");
+        Mat calibration_image_2 = Imgcodecs.imread(imagePath + "rect_image_2.jpg");
 
 //        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "recti1.jpg");
 //        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "recti2.jpg");
 
+//        Matcher matcher = new OFMatcher(calibration_image_1, calibration_image_2);
+//        matcher.match();
+//
+//        Mat outImg = matcher.drawMatchesAndKeyPoints("./res/calibration/test1.jpg");
         Utils utils = new Utils();
-
 
         utils.computeEpiLines(calibration_image_1, calibration_image_2);
 
 //        MatchingPointsDetector detector = new MatchingPointsDetector(calibration_image_1, calibration_image_2);
 //        detector.matchImages();
 
+        // test loading
+//        Mat cameraMatrix = new Mat();
+//        Mat distCoeffs = new Mat();
+//        calibration.loadCameraCalibration(cameraMatrix, distCoeffs);
     }
 }

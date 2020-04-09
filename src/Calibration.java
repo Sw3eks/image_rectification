@@ -4,10 +4,9 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -144,7 +143,7 @@ public class Calibration {
         intrinsic.put(0, 0, 1);
         intrinsic.put(1, 1, 1);
 
-        distCoeffs = Mat.zeros(8, 1, CV_64F);
+        distCoeffs = Mat.zeros(5, 1, CV_64F);
 
         double result = calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
         calculatePPM(rVectors, tVectors);
@@ -157,9 +156,27 @@ public class Calibration {
             fStream = new FileWriter("out.txt", true);
             BufferedWriter out = new BufferedWriter(fStream);
 
-            out.write("Matrix: " + intrinsic.dump());
-            out.write("\nDist: " + distCoeffs.dump());
+            out.write(intrinsic.rows() + "\n");
+            out.write(intrinsic.cols() + "\n");
 
+            for (int r = 0; r < intrinsic.rows(); r++) {
+                for (int c = 0; c < intrinsic.cols(); c++) {
+                    out.write(intrinsic.get(r, c)[0] + "\n");
+                }
+            }
+
+            out.write("\n" + distCoeffs.rows() + "\n");
+            out.write(distCoeffs.cols() + "\n");
+
+            for (int r = 0; r < distCoeffs.rows(); r++) {
+                for (int c = 0; c < distCoeffs.cols(); c++) {
+                    out.write(distCoeffs.get(r, c)[0] + "\n");
+                }
+            }
+
+
+//            out.write("Matrix: " + intrinsic.dump());
+//            out.write("\nDist: " + distCoeffs.dump());
             //Close the output stream
             out.close();
             return true;
@@ -176,6 +193,49 @@ public class Calibration {
             }
         }
         return false;
+    }
+
+    public List<Mat> loadCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
+        FileReader reader;
+        try {
+            reader = new FileReader("out.txt");
+            BufferedReader in = new BufferedReader(reader);
+            int rows = Integer.parseInt(in.readLine());
+            int columns = Integer.parseInt(in.readLine());
+
+            cameraMatrix = new Mat(new Size(rows, columns), CV_64F);
+
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    double read;
+                    read = Double.parseDouble(in.readLine());
+                    cameraMatrix.put(r, c, read);
+                }
+            }
+            System.out.println("CameraMatrix: " + cameraMatrix.dump());
+
+            in.readLine(); // read the empty line
+
+            rows = Integer.parseInt(in.readLine());
+            columns = Integer.parseInt(in.readLine());
+
+            distCoeffs = Mat.zeros(new Size(rows, columns), CV_64F);
+
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    double read;
+                    read = Double.parseDouble(in.readLine());
+                    distCoeffs.put(r, c, read);
+                }
+            }
+            System.out.println("DistCoeffs: " + distCoeffs.dump());
+
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        }
+
+        return Arrays.asList(cameraMatrix, distCoeffs);
     }
 
     public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors) {
@@ -199,8 +259,12 @@ public class Calibration {
         Core.gemm(intrinsic, Rt1, 1, new Mat(), 0, PPM1, 0);
         Core.gemm(intrinsic, Rt2, 1, new Mat(), 0, PPM2, 0);
 
-        System.out.println("PPM1: " + PPM1.dump());
-        System.out.println("PPM2: " + PPM2.dump());
+        boolean result = savePPM(PPM1, PPM2);
+        if (result) {
+            System.out.println("Saved PPM!");
+            System.out.println("PPM1: " + PPM1.dump());
+            System.out.println("PPM2: " + PPM2.dump());
+        }
 
         Mat calibration_image_1 = Imgcodecs.imread("./res/calibration/calib0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread("./res/calibration/calib1.jpg");
@@ -223,5 +287,32 @@ public class Calibration {
                 rectificationModel.getRectifiedImage2(),
                 rectificationModel.getRectifiedImagePoints1(),
                 rectificationModel.getRectifiedImagePoints2());
+    }
+
+    public boolean savePPM(Mat PPM1, Mat PPM2) {
+        FileWriter fStream = null;
+        try {
+            fStream = new FileWriter("ppm.txt", true);
+            BufferedWriter out = new BufferedWriter(fStream);
+
+            out.write("PPM1: " + PPM1.dump());
+            out.write("\nPPM2: " + PPM2.dump());
+
+            //Close the output stream
+            out.close();
+            return true;
+        } catch (IOException e) {
+            System.out.println("Exception: " + e.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        } finally {
+            try {
+                if (fStream != null) {
+                    fStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 }
