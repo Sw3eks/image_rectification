@@ -95,14 +95,14 @@ public class Calibration {
 
                 switch (character) {
                     case 32: // 32 = space key event
+                        imwrite("./res/calibration/testbilder" + objectPoints.size() + ".jpg", frame);
+                        System.out.println("found");
                         if (found) {
-                            imwrite("./res/calibration/calib" + objectPoints.size() + ".jpg", frame);
-                            System.out.println("found");
                             this.imagePoints.add(imageCorners);
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
                         }
-                        if (objectPoints.size() > 15) {
+                        if (objectPoints.size() > 1) {
                             cameraCalibration();
                             boolean result = saveCameraCalibration();
                             if (result) {
@@ -153,7 +153,7 @@ public class Calibration {
     public boolean saveCameraCalibration() {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("out.txt", true);
+            fStream = new FileWriter("out_1.txt", true);
             BufferedWriter out = new BufferedWriter(fStream);
 
             out.write(intrinsic.rows() + "\n");
@@ -290,7 +290,7 @@ public class Calibration {
     public boolean savePPM(Mat PPM1, Mat PPM2) {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("ppm.txt", true);
+            fStream = new FileWriter("ppm_1.txt", true);
             BufferedWriter out = new BufferedWriter(fStream);
 
 
