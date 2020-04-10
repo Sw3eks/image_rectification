@@ -173,8 +173,6 @@ public class Calibration {
                     out.write(distCoeffs.get(r, c)[0] + "\n");
                 }
             }
-
-
 //            out.write("Matrix: " + intrinsic.dump());
 //            out.write("\nDist: " + distCoeffs.dump());
             //Close the output stream
@@ -295,8 +293,26 @@ public class Calibration {
             fStream = new FileWriter("ppm.txt", true);
             BufferedWriter out = new BufferedWriter(fStream);
 
-            out.write("PPM1: " + PPM1.dump());
-            out.write("\nPPM2: " + PPM2.dump());
+
+            out.write(PPM1.rows() + "\n");
+            out.write(PPM1.cols() + "\n");
+
+            for (int r = 0; r < PPM1.rows(); r++) {
+                for (int c = 0; c < PPM1.cols(); c++) {
+                    out.write(PPM1.get(r, c)[0] + "\n");
+                }
+            }
+
+            out.write("\n" + PPM2.rows() + "\n");
+            out.write(PPM2.cols() + "\n");
+
+            for (int r = 0; r < PPM2.rows(); r++) {
+                for (int c = 0; c < PPM2.cols(); c++) {
+                    out.write(PPM2.get(r, c)[0] + "\n");
+                }
+            }
+            //out.write("PPM1: " + PPM1.dump());
+            //out.write("\nPPM2: " + PPM2.dump());
 
             //Close the output stream
             out.close();
