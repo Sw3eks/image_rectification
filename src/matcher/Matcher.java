@@ -10,8 +10,8 @@ import java.util.List;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public abstract class Matcher {
-    private Mat img1;
-    private Mat img2;
+    private final Mat img1;
+    private final Mat img2;
     //detector, descriptor, matcher
     private FastFeatureDetector detector;
     private ORB descriptor;
@@ -37,7 +37,7 @@ public abstract class Matcher {
 
     }
 
-    public abstract void match();
+    public abstract List<MatOfPoint2f> match();
 
 
     public Mat drawMatchesAndKeyPoints(String path) {

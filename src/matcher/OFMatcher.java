@@ -8,6 +8,7 @@ import org.opencv.utils.Converters;
 import org.opencv.video.Video;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class OFMatcher extends Matcher {
         super(img1, img2);
     }
 
-    public void match() {
+    public List<MatOfPoint2f> match() {
 
         setDetector(FastFeatureDetector.create());
         setDescriptor(ORB.create());
@@ -67,6 +68,7 @@ public class OFMatcher extends Matcher {
         sortedKeyPointsToMatOfPoint2f(getKeyPoints1(), getKeyPoints2(), getGoodMatches(), points1, points2);
         setMatchPoints1(points1);
         setMatchPoints2(points2);
+        return Arrays.asList(getMatchPoints1(), getMatchPoints2());
     }
 
     private List<DMatch> ofRatioTest(List<MatOfDMatch> matches, List<Integer> originalIndexes) {

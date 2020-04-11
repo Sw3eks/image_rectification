@@ -20,7 +20,7 @@ public class RichMatcher extends Matcher {
     }
 
     @Override
-    public void match() {
+    public List<MatOfPoint2f> match() {
         List<DMatch> goodMatches = new ArrayList<>();
 
         for (MatOfDMatch matOfDMatch : matches1) {
@@ -35,6 +35,7 @@ public class RichMatcher extends Matcher {
         setMatchPoints1(points1);
         setMatchPoints2(points2);
         setGoodMatches(this.goodMatches);
+        return null;
     }
 
     public void sortedKeyPointsToMatOfPoint2f(MatOfKeyPoint srcPoints, MatOfKeyPoint dstPoints,

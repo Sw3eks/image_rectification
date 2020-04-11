@@ -5,7 +5,6 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
@@ -13,20 +12,11 @@ import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 public class Rectification {
 
     private static final String imagePath = "./res/images/";
-    private static final String calibrationPath = "./res/calibration/";
+    private static final String calibrationPath = "./res/output/";
 
-    public void setUp() {
-        List<Mat> images = new ArrayList<>();
-
-        Mat image_1 = Imgcodecs.imread(imagePath + "rect_image_1.jpg");
-        Mat image_2 = Imgcodecs.imread(imagePath + "rect_image_2.jpg");
-        images.add(image_1);
-        images.add(image_2);
-    }
-
-    public RectificationModel doRectification(Mat ppm1, Mat ppm2, List<Mat> imagePoints) {
-        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "calib0.jpg");
-        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "calib1.jpg");
+    public RectificationModel doRectification(Mat ppm1, Mat ppm2, Mat imagePoints1, Mat imagePoints2) {
+        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "testbilder0.jpg");
+        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "testbilder1.jpg");
 
         RectifyModel rectificationModel = rectify(ppm1, ppm2);
 
@@ -40,8 +30,8 @@ public class Rectification {
         MatOfPoint2f imagePointsTransformed1 = new MatOfPoint2f();
         MatOfPoint2f imagePointsTransformed2 = new MatOfPoint2f();
 
-        Core.perspectiveTransform(imagePoints.get(0), imagePointsTransformed1, rectificationModel.getT1());
-        Core.perspectiveTransform(imagePoints.get(1), imagePointsTransformed2, rectificationModel.getT2());
+        Core.perspectiveTransform(imagePoints1, imagePointsTransformed1, rectificationModel.getT1());
+        Core.perspectiveTransform(imagePoints2, imagePointsTransformed2, rectificationModel.getT2());
 
         return new RectificationModel(rectifiedImage1, rectifiedImage2, imagePointsTransformed1, imagePointsTransformed2);
     }

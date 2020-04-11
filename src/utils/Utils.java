@@ -4,7 +4,6 @@ import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.*;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.utils.Converters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +14,6 @@ import static org.opencv.core.Core.NORM_HAMMING;
 import static org.opencv.core.CvType.CV_32F;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import static org.opencv.imgproc.Imgproc.FILLED;
-import static org.opencv.imgproc.Imgproc.line;
 
 public class Utils {
 
@@ -24,13 +22,19 @@ public class Utils {
     private Mat imageOne;
     private Mat imageTwo;
 
-    public List<Mat> computeEpiLines(Mat firstImage, Mat secondImage) {
+    public List<Mat> computeEpiLines(Mat firstImage, Mat secondImage, MatOfPoint2f firstImagePoints, MatOfPoint2f secondImagePoints) {
         this.imageOne = firstImage;
         this.imageTwo = secondImage;
 
+//        if (firstImagePoints != null && secondImagePoints != null) {
+//            good_matches_1 = firstImagePoints;
+//            good_matches_2 = secondImagePoints;
+//        } else {
         good_matches_1 = new MatOfPoint2f();
         good_matches_2 = new MatOfPoint2f();
+        //}
         Mat fund_mat = fundamentalMat();
+
 
         Mat lines_1 = new Mat();
         Mat lines_2 = new Mat();
@@ -42,15 +46,10 @@ public class Utils {
 //        Mat img2WithLines = drawLines(imageTwo, lines_2);
         drawEpilines(lines_1, lines_2);
 
-        imwrite("./res/calibration/test1.jpg", imageOne);
-        imwrite("./res/calibration/test2.jpg", imageTwo);
+        imwrite("./res/calibration/epipolar_output1.jpg", imageOne);
+        imwrite("./res/calibration/epipolar_output2.jpg", imageTwo);
 
-        // The epipole is the left-null vector of F
-        Mat epi_mat = new Mat();
-        Mat dest_mat = new Mat();
-        //Core.solve(fund_mat, epi_mat, dest_mat, DECOMP_SVD);
-
-        return Arrays.asList(lines_1, lines_2);
+        return Arrays.asList(good_matches_1, good_matches_2, lines_1, lines_2);
     }
 
     private Mat fundamentalMat() {
@@ -99,8 +98,8 @@ public class Utils {
         Mat descriptors1;
         Mat descriptors2;
 
-        descriptors1 = detectFeatures(imageOne, "ORB", keyPoints1);
-        descriptors2 = detectFeatures(imageTwo, "ORB", keyPoints2);
+        descriptors1 = detectFeatures(imageOne, "ORB2", keyPoints1);
+        descriptors2 = detectFeatures(imageTwo, "ORB2", keyPoints2);
 
         // 2 - Match both descriptors using required detector
         // Declare the matcher
@@ -185,49 +184,6 @@ public class Utils {
         detector.compute(image, keyPoints1, descriptors);
 
         return descriptors;
-    }
-
-    private static Mat drawLines(Mat image1, Mat lines1) {
-        Mat resultImg = new Mat();
-        image1.copyTo(resultImg);
-        //Imgproc.cvtColor(image1, resultImg, Imgproc.COLOR_BGR2GRAY);
-        int epiLinesCount = lines1.rows();
-
-        double a, b, c;
-
-        for (int line = 0; line < epiLinesCount; line++) {
-            a = lines1.get(line, 0)[0];
-            b = lines1.get(line, 0)[1];
-            c = lines1.get(line, 0)[2];
-
-            int x0 = 0;
-            int y0 = (int) (-(c + a * x0) / b);
-            int x1 = resultImg.cols() / 2;
-            int y1 = (int) (-(c + a * x1) / b);
-
-            Point p1 = new Point(x0, y0);
-            Point p2 = new Point(x1, y1);
-            Scalar color = new Scalar(255, 0, 0);
-            line(resultImg, p1, p2, color);
-
-        }
-        for (int line = 0; line < epiLinesCount; line++) {
-            a = lines1.get(line, 0)[0];
-            b = lines1.get(line, 0)[1];
-            c = lines1.get(line, 0)[2];
-
-            int x0 = resultImg.cols() / 2;
-            int y0 = (int) (-(c + a * x0) / b);
-            int x1 = resultImg.cols();
-            int y1 = (int) (-(c + a * x1) / b);
-
-            Point p1 = new Point(x0, y0);
-            Point p2 = new Point(x1, y1);
-            Scalar color = new Scalar(255, 0, 0);
-            line(resultImg, p1, p2, color);
-
-        }
-        return resultImg;
     }
 
     void drawEpilines(Mat lines_1, Mat lines_2) {
