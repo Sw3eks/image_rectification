@@ -192,14 +192,5 @@ public class Calibration {
         MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
         Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(0), undistortedPoints1, intrinsic, distCoeffs, new Mat(), intrinsic);
         Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(1), undistortedPoints2, intrinsic, distCoeffs, new Mat(), intrinsic);
-
-//        Rectification rectification = new Rectification();
-//        RectificationModel rectificationModel = rectification.doRectification(PPM1, PPM2, imagePoints.get(0), imagePoints.get(1));
-//
-//        rectification.drawEpipolarLines(
-//                rectificationModel.getRectifiedImage1(),
-//                rectificationModel.getRectifiedImage2(),
-//                rectificationModel.getRectifiedImagePoints1(),
-//                rectificationModel.getRectifiedImagePoints2());
     }
 }

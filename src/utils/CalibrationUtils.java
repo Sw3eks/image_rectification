@@ -98,7 +98,7 @@ public class CalibrationUtils {
     public static boolean saveCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("out_1.txt", true);
+            fStream = new FileWriter("out_1.txt");
             BufferedWriter out = new BufferedWriter(fStream);
 
             out.write(cameraMatrix.rows() + "\n");
