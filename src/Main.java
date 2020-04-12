@@ -12,6 +12,7 @@ import java.util.List;
 public class Main {
     private static final String calibrationPath = "./res/output/";
     private static final String imagePath = "./res/images/";
+    private static final String handyPath = "./res/images/handy/";
 
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -20,11 +21,12 @@ public class Main {
 
         Calibration calibration = new Calibration();
         calibration.init();
-        try {
-            calibration.cameraCalibration(loadImages());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+//        calibration.takeImages();
+//        try {
+//            calibration.cameraCalibration(loadImages());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
         Mat PPM1 = new Mat();
         Mat PPM2 = new Mat();
         List<Mat> result = CalibrationUtils.loadPPM(PPM1, PPM2);
@@ -47,11 +49,6 @@ public class Main {
         Mat result_image_2 = Imgcodecs.imread(calibrationPath + "recti2.jpg");
 
         utils.computeEpiLines(result_image_1, result_image_2, rectiResults.getRectifiedImagePoints1(), rectiResults.getRectifiedImagePoints2());
-//
-//        calibration.takeImages();
-
-//        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "recti1.jpg");
-//        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "recti2.jpg");
 
 //        Matcher matcher = new OFMatcher(calibration_image_1, calibration_image_2);
 //        matcher.match();
@@ -68,10 +65,10 @@ public class Main {
             String currImageName = "calib" + i + ".jpg";
 
             // Load image
-            Mat image = Imgcodecs.imread(calibrationPath + "images/" + currImageName);
+            Mat image = Imgcodecs.imread(handyPath + "images/" + currImageName);
             if (image.empty()) {
                 System.out.println(currImageName + " Error: File empty.");
-                throw new FileNotFoundException(calibrationPath + "images/" + currImageName);
+                throw new FileNotFoundException(handyPath + "images/" + currImageName);
             }
             images.add(image);
         }

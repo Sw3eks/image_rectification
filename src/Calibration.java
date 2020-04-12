@@ -104,7 +104,7 @@ public class Calibration {
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
                         }
-                        if (objectPoints.size() > 1) {
+                        if (objectPoints.size() > 15) {
                             cameraCalibration(null);
                         }
                         break;
