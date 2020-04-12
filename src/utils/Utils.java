@@ -46,8 +46,8 @@ public class Utils {
 //        Mat img2WithLines = drawLines(imageTwo, lines_2);
         drawEpilines(lines_1, lines_2);
 
-        imwrite("./res/calibration/epipolar_output1.jpg", imageOne);
-        imwrite("./res/calibration/epipolar_output2.jpg", imageTwo);
+        imwrite("./res/output/epipolar_output1.jpg", imageOne);
+        imwrite("./res/output/epipolar_output2.jpg", imageTwo);
 
         return Arrays.asList(good_matches_1, good_matches_2, lines_1, lines_2);
     }

@@ -14,7 +14,7 @@ public class CalibrationUtils {
     public static boolean savePPM(Mat PPM1, Mat PPM2) {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("ppm_3.txt");
+            fStream = new FileWriter("ppm_1.txt");
             BufferedWriter out = new BufferedWriter(fStream);
 
 
@@ -56,7 +56,7 @@ public class CalibrationUtils {
     public static List<Mat> loadPPM(Mat PPM1, Mat PPM2) {
         FileReader reader;
         try {
-            reader = new FileReader("ppm_2.txt");
+            reader = new FileReader("ppm.txt");
             BufferedReader in = new BufferedReader(reader);
             int rows = Integer.parseInt(in.readLine());
             int columns = Integer.parseInt(in.readLine());
@@ -98,7 +98,7 @@ public class CalibrationUtils {
     public static boolean saveCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("out_3.txt");
+            fStream = new FileWriter("out_1.txt");
             BufferedWriter out = new BufferedWriter(fStream);
 
             out.write(cameraMatrix.rows() + "\n");
@@ -135,10 +135,10 @@ public class CalibrationUtils {
         return false;
     }
 
-    public List<Mat> loadCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
+    public static List<Mat> loadCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
         FileReader reader;
         try {
-            reader = new FileReader("out.txt");
+            reader = new FileReader("out_2.txt");
             BufferedReader in = new BufferedReader(reader);
             int rows = Integer.parseInt(in.readLine());
             int columns = Integer.parseInt(in.readLine());

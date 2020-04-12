@@ -21,12 +21,12 @@ public class Main {
 
         Calibration calibration = new Calibration();
         calibration.init();
-//        calibration.takeImages();
-//        try {
-//            calibration.cameraCalibration(loadImages());
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
+        //calibration.takeImages();
+        try {
+            calibration.cameraCalibration(loadImages());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         Mat PPM1 = new Mat();
         Mat PPM2 = new Mat();
         List<Mat> result = CalibrationUtils.loadPPM(PPM1, PPM2);
@@ -61,14 +61,14 @@ public class Main {
 
     private static List<Mat> loadImages() throws FileNotFoundException {
         List<Mat> images = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 16; i++) {
             String currImageName = "calib" + i + ".jpg";
 
             // Load image
-            Mat image = Imgcodecs.imread(handyPath + "images/" + currImageName);
+            Mat image = Imgcodecs.imread(calibrationPath + "images/" + currImageName);
             if (image.empty()) {
                 System.out.println(currImageName + " Error: File empty.");
-                throw new FileNotFoundException(handyPath + "images/" + currImageName);
+                throw new FileNotFoundException(calibrationPath + "images/" + currImageName);
             }
             images.add(image);
         }

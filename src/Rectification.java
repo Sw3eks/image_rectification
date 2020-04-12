@@ -13,6 +13,7 @@ public class Rectification {
 
     private static final String imagePath = "./res/images/";
     private static final String calibrationPath = "./res/output/";
+    private static final String handyPath = "./res/images/handy/";
 
     public RectificationModel doRectification(Mat ppm1, Mat ppm2, Mat imagePoints1, Mat imagePoints2) {
         Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "testbilder0.jpg");
@@ -24,8 +25,8 @@ public class Rectification {
         Mat rectifiedImage2 = new Mat();
         Imgproc.warpPerspective(calibration_image_1, rectifiedImage1, rectificationModel.getT1(), calibration_image_1.size());
         Imgproc.warpPerspective(calibration_image_2, rectifiedImage2, rectificationModel.getT2(), calibration_image_2.size());
-        imwrite("./res/calibration/recti1.jpg", rectifiedImage1);
-        imwrite("./res/calibration/recti2.jpg", rectifiedImage2);
+        imwrite("./res/output/recti1.jpg", rectifiedImage1);
+        imwrite("./res/output/recti2.jpg", rectifiedImage2);
 
         MatOfPoint2f imagePointsTransformed1 = new MatOfPoint2f();
         MatOfPoint2f imagePointsTransformed2 = new MatOfPoint2f();
