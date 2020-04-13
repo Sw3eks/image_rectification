@@ -65,9 +65,9 @@ public class MatchingPointsDetector {
         Mat outImg = new Mat(img1.rows(), img1.cols() * 2, img1.type());
         Features2d.drawMatches(img1, keyPoints1, img2, keyPoints2, goodMatches, outImg);
 
-        imwrite("./res/calibration/detect1.jpg", img1);
-        imwrite("./res/calibration/detect2.jpg", img2);
-        imwrite("./res/calibration/detect3.jpg", outImg);
+        imwrite("./res/output/detect1.jpg", img1);
+        imwrite("./res/output/detect2.jpg", img2);
+        imwrite("./res/output/detect3.jpg", outImg);
 
     }
 

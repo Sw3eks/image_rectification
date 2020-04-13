@@ -1,25 +1,35 @@
 import models.RectificationModel;
 import models.RectifyModel;
 import org.opencv.calib3d.Calib3d;
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Range;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
+import static org.opencv.calib3d.Calib3d.decomposeProjectionMatrix;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Rectification {
 
     private static final String imagePath = "./res/images/";
     private static final String calibrationPath = "./res/output/";
-    private static final String handyPath = "./res/images/handy/";
 
     public RectificationModel doRectification(Mat ppm1, Mat ppm2, Mat imagePoints1, Mat imagePoints2) {
         Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "testbilder0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "testbilder1.jpg");
 
         RectifyModel rectificationModel = rectify(ppm1, ppm2);
+        Mat cameraMatrix = new Mat();
+        Mat rVec = new Mat();
+        Mat tVec = new Mat();
+        decomposeProjectionMatrix(rectificationModel.getPn1(), cameraMatrix, rVec, tVec);
+        System.out.println("Matrix: " + cameraMatrix.dump());
+        System.out.println("R: " + rVec.dump());
+        System.out.println("T: " + tVec.dump());
 
         Mat rectifiedImage1 = new Mat();
         Mat rectifiedImage2 = new Mat();
@@ -31,10 +41,14 @@ public class Rectification {
         MatOfPoint2f imagePointsTransformed1 = new MatOfPoint2f();
         MatOfPoint2f imagePointsTransformed2 = new MatOfPoint2f();
 
-        Core.perspectiveTransform(imagePoints1, imagePointsTransformed1, rectificationModel.getT1());
-        Core.perspectiveTransform(imagePoints2, imagePointsTransformed2, rectificationModel.getT2());
+        //Core.perspectiveTransform(imagePoints1, imagePointsTransformed1, rectificationModel.getT1());
+        //Core.perspectiveTransform(imagePoints2, imagePointsTransformed2, rectificationModel.getT2());
 
-        return new RectificationModel(rectifiedImage1, rectifiedImage2, imagePointsTransformed1, imagePointsTransformed2);
+        return new RectificationModel(
+                rectifiedImage1,
+                rectifiedImage2,
+                imagePointsTransformed1,
+                imagePointsTransformed2);
     }
 
     public RectifyModel rectify(Mat Po1, Mat Po2) {
@@ -44,8 +58,8 @@ public class Rectification {
         Mat R2 = new Mat();
         Mat t1_new = new Mat();
         Mat t2_new = new Mat();
-        Calib3d.decomposeProjectionMatrix(Po1, A1, R1, t1_new);
-        Calib3d.decomposeProjectionMatrix(Po2, A2, R2, t2_new);
+        decomposeProjectionMatrix(Po1, A1, R1, t1_new);
+        decomposeProjectionMatrix(Po2, A2, R2, t2_new);
 
         Mat c1 = new Mat();
         Mat c2 = new Mat();
@@ -82,6 +96,8 @@ public class Rectification {
         Core.add(A1, A2, A_sum);
         Mat A = new Mat();
         A_sum.convertTo(A, A_sum.type(), 0.5);
+        A.put(0, 1, 0); // set skew to zero
+        //A.put(0, 2, A.get(0, 2)[0] - 160);
 
         Mat R_times_c1_neg = new Mat();
         Mat R_times_c2_neg = new Mat();
@@ -112,6 +128,10 @@ public class Rectification {
         Core.gemm(Pn1_sub, PPM1_sub.inv(), 1, new Mat(), 0, T1, 0);
         Core.gemm(Pn2_sub, PPM2_sub.inv(), 1, new Mat(), 0, T2, 0);
 
+//        System.out.println(Pn1.dump());
+//        System.out.println(Pn2.dump());
+//        System.out.println(T1.dump());
+//        System.out.println(T2.dump());
         return new RectifyModel(T1, T2, Pn1, Pn2);
     }
 

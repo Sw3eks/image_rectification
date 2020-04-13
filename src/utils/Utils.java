@@ -32,15 +32,13 @@ public class Utils {
 //        } else {
         good_matches_1 = new MatOfPoint2f();
         good_matches_2 = new MatOfPoint2f();
-        //}
+//        }
         Mat fund_mat = fundamentalMat();
-
 
         Mat lines_1 = new Mat();
         Mat lines_2 = new Mat();
         computeCorrespondEpilines(good_matches_1, 1, fund_mat, lines_2);
         computeCorrespondEpilines(good_matches_2, 2, fund_mat, lines_1);
-
 
 //        Mat img1WithLines = drawLines(imageOne, lines_1);
 //        Mat img2WithLines = drawLines(imageTwo, lines_2);
@@ -68,8 +66,8 @@ public class Utils {
             second = matches.get(1);
             flag |= FM_RANSAC;
         } else {
-            first = good_matches_1;
-            second = good_matches_2;
+            first = good_matches_1.submat(0, 8, 0, 1);
+            second = good_matches_2.submat(0, 8, 0, 1);
         }
 
 
@@ -223,6 +221,35 @@ public class Utils {
                         color,
                         FILLED);
             }
+        }
+    }
+
+    public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors, Mat intrinsic) {
+        Mat r1 = rVectors.get(0);
+        Mat r2 = rVectors.get(1);
+        Mat R1 = new Mat();
+        Mat R2 = new Mat();
+        Calib3d.Rodrigues(r1, R1);
+        Calib3d.Rodrigues(r2, R2);
+
+        Mat t1 = tVectors.get(0);
+        Mat t2 = tVectors.get(1);
+        Mat Rt1 = new Mat();
+        Mat Rt2 = new Mat();
+        Core.hconcat(List.of(R1, t1), Rt1);
+        Core.hconcat(List.of(R2, t2), Rt2);
+        System.out.println("Rt1: " + Rt1.dump());
+
+        Mat PPM1 = new Mat();
+        Mat PPM2 = new Mat();
+        Core.gemm(intrinsic, Rt1, 1, new Mat(), 0, PPM1, 0);
+        Core.gemm(intrinsic, Rt2, 1, new Mat(), 0, PPM2, 0);
+
+        boolean result = CalibrationUtils.savePPM(PPM1, PPM2);
+        if (result) {
+            System.out.println("Saved PPM!");
+            System.out.println("PPM1: " + PPM1.dump());
+            System.out.println("PPM2: " + PPM2.dump());
         }
     }
 }

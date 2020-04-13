@@ -4,6 +4,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import utils.CalibrationUtils;
+import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class Calibration {
             capture.read(frame);
 
             if (!frame.empty()) {
-                boolean found = findChessboardCorners(frame, chessboardDimensions, imageCorners, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
+                boolean found = findChessboardCorners(frame, chessboardDimensions, imageCorners, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE | CALIB_CB_FAST_CHECK);
                 frame.copyTo(drawToFrame);
 
                 drawChessboardCorners(drawToFrame, chessboardDimensions, imageCorners, found);
@@ -97,9 +98,9 @@ public class Calibration {
 
                 switch (character) {
                     case 32: // 32 = space key event
-                        imwrite("./res/output/calibration/calib" + objectPoints.size() + ".jpg", frame);
-                        System.out.println("found " + objectPoints.size());
                         if (found) {
+                            imwrite("./res/output/calibration/calib" + objectPoints.size() + ".jpg", frame);
+                            System.out.println("found " + objectPoints.size());
                             this.imagePoints.add(imageCorners);
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
@@ -153,32 +154,8 @@ public class Calibration {
     }
 
     public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors) {
-        Mat r1 = rVectors.get(0);
-        Mat r2 = rVectors.get(1);
-        Mat R1 = new Mat();
-        Mat R2 = new Mat();
-        Calib3d.Rodrigues(r1, R1);
-        Calib3d.Rodrigues(r2, R2);
-
-        Mat t1 = tVectors.get(0);
-        Mat t2 = tVectors.get(1);
-        Mat Rt1 = new Mat();
-        Mat Rt2 = new Mat();
-        Core.hconcat(List.of(R1, t1), Rt1);
-        Core.hconcat(List.of(R2, t2), Rt2);
-        System.out.println("Rt1: " + Rt1.dump());
-
-        Mat PPM1 = new Mat();
-        Mat PPM2 = new Mat();
-        Core.gemm(intrinsic, Rt1, 1, new Mat(), 0, PPM1, 0);
-        Core.gemm(intrinsic, Rt2, 1, new Mat(), 0, PPM2, 0);
-
-        boolean result = CalibrationUtils.savePPM(PPM1, PPM2);
-        if (result) {
-            System.out.println("Saved PPM!");
-            System.out.println("PPM1: " + PPM1.dump());
-            System.out.println("PPM2: " + PPM2.dump());
-        }
+        Utils utils = new Utils();
+        utils.calculatePPM(rVectors, tVectors, intrinsic);
 
         Mat calibration_image_1 = Imgcodecs.imread("./res/output/testbilder0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread("./res/output/testbilder1.jpg");
@@ -192,5 +169,6 @@ public class Calibration {
         MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
         Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(0), undistortedPoints1, intrinsic, distCoeffs, new Mat(), intrinsic);
         Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(1), undistortedPoints2, intrinsic, distCoeffs, new Mat(), intrinsic);
+        //intrinsic = getOptimalNewCameraMatrix(intrinsic, distCoeffs, new Size(640, 480), 1, new Size(640, 480));
     }
 }
