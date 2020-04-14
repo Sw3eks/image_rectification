@@ -56,7 +56,7 @@ public class CalibrationUtils {
     public static List<Mat> loadPPM(Mat PPM1, Mat PPM2) {
         FileReader reader;
         try {
-            reader = new FileReader("ppm_1.txt");
+            reader = new FileReader("ppm_2.txt");
             BufferedReader in = new BufferedReader(reader);
             int rows = Integer.parseInt(in.readLine());
             int columns = Integer.parseInt(in.readLine());

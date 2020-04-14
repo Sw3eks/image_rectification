@@ -26,13 +26,13 @@ public class Utils {
         this.imageOne = firstImage;
         this.imageTwo = secondImage;
 
-//        if (firstImagePoints != null && secondImagePoints != null) {
-//            good_matches_1 = firstImagePoints;
-//            good_matches_2 = secondImagePoints;
-//        } else {
-        good_matches_1 = new MatOfPoint2f();
-        good_matches_2 = new MatOfPoint2f();
-//        }
+        if (firstImagePoints != null && secondImagePoints != null) {
+            good_matches_1 = firstImagePoints;
+            good_matches_2 = secondImagePoints;
+        } else {
+            good_matches_1 = new MatOfPoint2f();
+            good_matches_2 = new MatOfPoint2f();
+        }
         Mat fund_mat = fundamentalMat();
 
         Mat lines_1 = new Mat();
@@ -251,5 +251,11 @@ public class Utils {
             System.out.println("PPM1: " + PPM1.dump());
             System.out.println("PPM2: " + PPM2.dump());
         }
+    }
+
+    public void undistortImages(Mat image, Mat intrinsic, Mat distCoeffs, int index) {
+        Mat undistortedImage = new Mat();
+        Calib3d.undistort(image, undistortedImage, intrinsic, distCoeffs);
+        imwrite("./res/output/undistorted/undistort" + index + ".jpg", undistortedImage);
     }
 }

@@ -157,19 +157,5 @@ public class Calibration {
     public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors) {
         Utils utils = new Utils();
         utils.calculatePPM(rVectors, tVectors, intrinsic);
-
-        Mat calibration_image_1 = Imgcodecs.imread("./res/output/testbilder0.jpg");
-        Mat calibration_image_2 = Imgcodecs.imread("./res/output/testbilder1.jpg");
-        Mat undistortedImage1 = new Mat();
-        Mat undistortedImage2 = new Mat();
-        Calib3d.undistort(calibration_image_1, undistortedImage1, intrinsic, distCoeffs);
-        Calib3d.undistort(calibration_image_2, undistortedImage2, intrinsic, distCoeffs);
-        imwrite("./res/output/undistort1.jpg", undistortedImage1);
-        imwrite("./res/output/undistort2.jpg", undistortedImage2);
-        MatOfPoint2f undistortedPoints1 = new MatOfPoint2f();
-        MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
-        Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(0), undistortedPoints1, intrinsic, distCoeffs, new Mat(), intrinsic);
-        Calib3d.undistortPoints((MatOfPoint2f) imagePoints.get(1), undistortedPoints2, intrinsic, distCoeffs, new Mat(), intrinsic);
-        //intrinsic = getOptimalNewCameraMatrix(intrinsic, distCoeffs, new Size(640, 480), 1, new Size(640, 480));
     }
 }
