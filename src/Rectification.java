@@ -19,8 +19,10 @@ public class Rectification {
     private static final String calibrationPath = "./res/output/";
 
     public RectificationModel doRectification(Mat ppm1, Mat ppm2, Mat imagePoints1, Mat imagePoints2) {
-        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "testbilder0.jpg");
-        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "testbilder1.jpg");
+//        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "testbilder0.jpg");
+//        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "testbilder1.jpg");
+        Mat calibration_image_1 = Imgcodecs.imread(calibrationPath + "undistorted/undistort1.jpg");
+        Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "undistorted/undistort2.jpg");
 
         RectifyModel rectificationModel = rectify(ppm1, ppm2);
 //        Mat cameraMatrix = new Mat();
@@ -97,6 +99,7 @@ public class Rectification {
         Mat A = new Mat();
         A_sum.convertTo(A, A_sum.type(), 0.5);
         A.put(0, 1, 0); // set skew to zero
+        //A.put(0, 2, A.get(0, 2)[0] - 160);
         //A.put(0, 2, A.get(0, 2)[0] - 160);
 
         Mat R_times_c1_neg = new Mat();

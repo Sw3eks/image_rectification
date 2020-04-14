@@ -23,12 +23,12 @@ public class Main {
 
         Calibration calibration = new Calibration();
         calibration.init();
-        calibration.takeImages();
-//        try {
-//            calibration.cameraCalibration(loadImages());
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
+//        calibration.takeImages();
+        try {
+            calibration.cameraCalibration(loadImages());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         Mat calibration_image_1 = Imgcodecs.imread(imagePath + "testbilder0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread(imagePath + "testbilder1.jpg");
         Mat intrinsic = new Mat();
@@ -45,6 +45,8 @@ public class Main {
         List<Mat> result = utils.computeEpiLines(calibration_image_1, calibration_image_2, null, null);
         good_matches_1 = result.get(0);
         good_matches_2 = result.get(1);
+
+        loadAndComputePPM(good_matches_1, good_matches_2);
 
         Mat PPM1 = new Mat();
         Mat PPM2 = new Mat();
@@ -88,31 +90,47 @@ public class Main {
         Mat rVector1 = new Mat();
         Mat tVector1 = new Mat();
         MatOfPoint2f imagePoints = new MatOfPoint2f();
-        for (int i = 0; i < good_matches_1.rows(); i++) {
-            if (good_matches_1.get(i, 0)[0] > 219 && good_matches_1.get(i, 0)[0] < 482 &&
-                    good_matches_1.get(i, 0)[1] > 88 && good_matches_1.get(i, 0)[0] < 385) {
-                imagePoints.push_back(new MatOfPoint2f(new Point(good_matches_1.get(i, 0)[0], good_matches_1.get(i, 0)[1])));
-            }
-        }
+        imagePoints.push_back(new MatOfPoint2f(new Point(219, 167)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(482, 167)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(482, 385)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(219, 385)));
+//        for (int i = 0; i < good_matches_1.rows(); i++) {
+//            if (good_matches_1.get(i, 0)[0] > 219 && good_matches_1.get(i, 0)[0] < 482 &&
+//                    good_matches_1.get(i, 0)[1] > 167 && good_matches_1.get(i, 0)[0] < 385) {
+//                imagePoints.push_back(new MatOfPoint2f(new Point(good_matches_1.get(i, 0)[0], good_matches_1.get(i, 0)[1])));
+//            }
+//        }
         MatOfPoint3f objectPoints = new MatOfPoint3f();
-        for (int i = 0; i < imagePoints.rows(); i++) {
-            objectPoints.push_back(new MatOfPoint3f(new Point3(imagePoints.get(i, 0)[0] * 0.2645833333, imagePoints.get(i, 0)[1] * 0.2645833333, 0)));
-        }
+        objectPoints.push_back(new MatOfPoint3f(new Point3(0, 0, 0)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(1, 0, 0)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(1, 1, 0)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(0, 1, 0)));
+//        for (int i = 0; i < imagePoints.rows(); i++) {
+//            objectPoints.push_back(new MatOfPoint3f(new Point3(imagePoints.get(i, 0)[0] * 0.2645833333, imagePoints.get(i, 0)[1] * 0.2645833333, 0)));
+//        }
         solvePnPRansac(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector1, tVector1, false, 100);
 
         Mat rVector2 = new Mat();
         Mat tVector2 = new Mat();
         imagePoints = new MatOfPoint2f();
-        for (int i = 0; i < good_matches_2.rows(); i++) {
-            if (good_matches_2.get(i, 0)[0] > 210 && good_matches_2.get(i, 0)[0] < 463 &&
-                    good_matches_2.get(i, 0)[1] > 95 && good_matches_2.get(i, 0)[0] < 389) {
-                imagePoints.push_back(new MatOfPoint2f(new Point(good_matches_2.get(i, 0)[0], good_matches_2.get(i, 0)[1])));
-            }
-        }
+        imagePoints.push_back(new MatOfPoint2f(new Point(210, 148)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(463, 148)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(463, 389)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(210, 389)));
+//        for (int i = 0; i < good_matches_2.rows(); i++) {
+//            if (good_matches_2.get(i, 0)[0] > 210 && good_matches_2.get(i, 0)[0] < 463 &&
+//                    good_matches_2.get(i, 0)[1] > 148 && good_matches_2.get(i, 0)[0] < 389) {
+//                imagePoints.push_back(new MatOfPoint2f(new Point(good_matches_2.get(i, 0)[0], good_matches_2.get(i, 0)[1])));
+//            }
+//        }
         objectPoints = new MatOfPoint3f();
-        for (int i = 0; i < imagePoints.rows(); i++) {
-            objectPoints.push_back(new MatOfPoint3f(new Point3(imagePoints.get(i, 0)[0] * 0.2645833333, imagePoints.get(i, 0)[1] * 0.2645833333, 0)));
-        }
+        objectPoints.push_back(new MatOfPoint3f(new Point3(0, 0, 0)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(1, 0, 0)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(1, 1, 0)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(0, 1, 0)));
+//        for (int i = 0; i < imagePoints.rows(); i++) {
+//            objectPoints.push_back(new MatOfPoint3f(new Point3(imagePoints.get(i, 0)[0] * 0.2645833333, imagePoints.get(i, 0)[1] * 0.2645833333, 0)));
+//        }
         solvePnPRansac(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector2, tVector2, false, 100);
 
         Utils utils = new Utils();
