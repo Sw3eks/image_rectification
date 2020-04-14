@@ -24,11 +24,11 @@ public class Main {
         Calibration calibration = new Calibration();
         calibration.init();
 //        calibration.takeImages();
-        try {
-            calibration.cameraCalibration(loadImages());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            calibration.cameraCalibration(loadImages());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
         Mat calibration_image_1 = Imgcodecs.imread(imagePath + "testbilder0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread(imagePath + "testbilder1.jpg");
         Mat intrinsic = new Mat();
@@ -46,7 +46,7 @@ public class Main {
         good_matches_1 = result.get(0);
         good_matches_2 = result.get(1);
 
-        loadAndComputePPM(good_matches_1, good_matches_2);
+        //loadAndComputePPM(good_matches_1, good_matches_2);
 
         Mat PPM1 = new Mat();
         Mat PPM2 = new Mat();
