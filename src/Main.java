@@ -23,7 +23,7 @@ public class Main {
 
         Calibration calibration = new Calibration();
         calibration.init();
-//        calibration.takeImages();
+        calibration.takeImages();
 //        try {
 //            calibration.cameraCalibration(loadImages());
 //        } catch (FileNotFoundException e) {
@@ -63,7 +63,7 @@ public class Main {
 
     private static List<Mat> loadImages() throws FileNotFoundException {
         List<Mat> images = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 20; i++) {
             String currImageName = "calib" + i + ".jpg";
 
             // Load image
