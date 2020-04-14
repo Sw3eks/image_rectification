@@ -23,13 +23,13 @@ public class Rectification {
         Mat calibration_image_2 = Imgcodecs.imread(calibrationPath + "testbilder1.jpg");
 
         RectifyModel rectificationModel = rectify(ppm1, ppm2);
-        Mat cameraMatrix = new Mat();
-        Mat rVec = new Mat();
-        Mat tVec = new Mat();
-        decomposeProjectionMatrix(rectificationModel.getPn1(), cameraMatrix, rVec, tVec);
-        System.out.println("Matrix: " + cameraMatrix.dump());
-        System.out.println("R: " + rVec.dump());
-        System.out.println("T: " + tVec.dump());
+//        Mat cameraMatrix = new Mat();
+//        Mat rVec = new Mat();
+//        Mat tVec = new Mat();
+//        decomposeProjectionMatrix(rectificationModel.getPn1(), cameraMatrix, rVec, tVec);
+//        System.out.println("Matrix: " + cameraMatrix.dump());
+//        System.out.println("R: " + rVec.dump());
+//        System.out.println("T: " + tVec.dump());
 
         Mat rectifiedImage1 = new Mat();
         Mat rectifiedImage2 = new Mat();
@@ -128,10 +128,10 @@ public class Rectification {
         Core.gemm(Pn1_sub, PPM1_sub.inv(), 1, new Mat(), 0, T1, 0);
         Core.gemm(Pn2_sub, PPM2_sub.inv(), 1, new Mat(), 0, T2, 0);
 
-//        System.out.println(Pn1.dump());
-//        System.out.println(Pn2.dump());
-//        System.out.println(T1.dump());
-//        System.out.println(T2.dump());
+        System.out.println(Pn1.dump());
+        System.out.println(Pn2.dump());
+        System.out.println(T1.dump());
+        System.out.println(T2.dump());
         return new RectifyModel(T1, T2, Pn1, Pn2);
     }
 

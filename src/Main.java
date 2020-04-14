@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.opencv.calib3d.Calib3d.solvePnP;
+import static org.opencv.calib3d.Calib3d.*;
 
 public class Main {
     private static final String calibrationPath = "./res/output/";
@@ -31,6 +31,11 @@ public class Main {
 //        }
         Mat calibration_image_1 = Imgcodecs.imread(imagePath + "testbilder0.jpg");
         Mat calibration_image_2 = Imgcodecs.imread(imagePath + "testbilder1.jpg");
+        Mat good_matches_1;
+        Mat good_matches_2;
+        List<Mat> result = utils.computeEpiLines(calibration_image_1, calibration_image_2, null, null);
+        good_matches_1 = result.get(0);
+        good_matches_2 = result.get(1);
 
         Mat intrinsic = new Mat();
         Mat distCoeffs = new Mat();
@@ -41,58 +46,58 @@ public class Main {
 
         Mat rVector1 = new Mat();
         Mat tVector1 = new Mat();
-        MatOfPoint3f objectPoints = new MatOfPoint3f();
-        objectPoints.push_back(new MatOfPoint3f(new Point3(0.0f, 0.0f, 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_1.cols(), 0.0f, 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_1.cols(), calibration_image_1.rows(), 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(0.0f, calibration_image_1.rows(), 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(320, 240, 0))); // Mittelpunkt
-        objectPoints.push_back(new MatOfPoint3f(new Point3(446, 265, 0))); // Kamera unten rechts
-        objectPoints.push_back(new MatOfPoint3f(new Point3(232, 256, 0))); // Kamera unten links
         MatOfPoint2f imagePoints = new MatOfPoint2f();
-        // Known points
-        imagePoints.push_back(new MatOfPoint2f(new Point(0, 0)));
-        imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_1.cols(), 0)));
-        imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_1.cols(), calibration_image_1.rows())));
-        imagePoints.push_back(new MatOfPoint2f(new Point(0, calibration_image_1.rows())));
-        imagePoints.push_back(new MatOfPoint2f(new Point(320, 240))); // Mittelpunkt
-        imagePoints.push_back(new MatOfPoint2f(new Point(446, 265))); // Kamera unten rechts
-        imagePoints.push_back(new MatOfPoint2f(new Point(232, 256))); // Kamera unten links
+        imagePoints.push_back(new MatOfPoint2f(new Point(275, 312)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(348, 312)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(275, 370)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(348, 370)));
+        for (int i = 0; i < good_matches_1.rows(); i++) {
+            if (good_matches_1.get(i, 0)[0] > 275 && good_matches_1.get(i, 0)[0] < 348 &&
+                    good_matches_1.get(i, 0)[1] > 312 && good_matches_1.get(i, 0)[0] < 370) {
+                imagePoints.push_back(new MatOfPoint2f(new Point(good_matches_1.get(i, 0)[0], good_matches_1.get(i, 0)[1])));
+            }
+        }
+        MatOfPoint3f objectPoints = new MatOfPoint3f();
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(275 * 0.2645833333, 312 * 0.2645833333, 0)));
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(348 * 0.2645833333, 312 * 0.2645833333, 0)));
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(275 * 0.2645833333, 370 * 0.2645833333, 0)));
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(348 * 0.2645833333, 370 * 0.2645833333, 0)));
+        for (int i = 0; i < imagePoints.rows(); i++) {
+            objectPoints.push_back(new MatOfPoint3f(new Point3(imagePoints.get(i, 0)[0] * 0.2645833333, imagePoints.get(i, 0)[1] * 0.2645833333, 0)));
+        }
         solvePnP(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector1, tVector1);
 
         Mat rVector2 = new Mat();
         Mat tVector2 = new Mat();
-        objectPoints = new MatOfPoint3f();
-        objectPoints.push_back(new MatOfPoint3f(new Point3(0.0f, 0.0f, 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_2.cols(), 0.0f, 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_2.cols(), calibration_image_2.rows(), 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(0.0f, calibration_image_2.rows(), 0.0f)));
-        objectPoints.push_back(new MatOfPoint3f(new Point3(320, 240, 0))); // Mittelpunkt
-        objectPoints.push_back(new MatOfPoint3f(new Point3(436, 259, 0))); // Kamera unten rechts
-        objectPoints.push_back(new MatOfPoint3f(new Point3(223, 273, 0))); // Kamera unten links
         imagePoints = new MatOfPoint2f();
-        imagePoints.push_back(new MatOfPoint2f(new Point(0.0f, 0.0f)));
-        imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_2.cols(), 0.0f)));
-        imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_2.cols(), calibration_image_2.rows())));
-        imagePoints.push_back(new MatOfPoint2f(new Point(0.0f, calibration_image_2.rows())));
-        imagePoints.push_back(new MatOfPoint2f(new Point(320, 240))); // Mittelpunkt
-        imagePoints.push_back(new MatOfPoint2f(new Point(436, 259))); // Kamera unten rechts
-        imagePoints.push_back(new MatOfPoint2f(new Point(223, 273))); // Kamera unten links
+//        imagePoints.push_back(new MatOfPoint2f(new Point(310, 324)));
+//        imagePoints.push_back(new MatOfPoint2f(new Point(380, 324)));
+//        imagePoints.push_back(new MatOfPoint2f(new Point(310, 370)));
+//        imagePoints.push_back(new MatOfPoint2f(new Point(380, 370)));
+        for (int i = 0; i < good_matches_2.rows(); i++) {
+            if (good_matches_2.get(i, 0)[0] > 310 && good_matches_2.get(i, 0)[0] < 380 &&
+                    good_matches_2.get(i, 0)[1] > 324 && good_matches_2.get(i, 0)[0] < 370) {
+                imagePoints.push_back(new MatOfPoint2f(new Point(good_matches_2.get(i, 0)[0], good_matches_2.get(i, 0)[1])));
+            }
+        }
+        objectPoints = new MatOfPoint3f();
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(310 * 0.2645833333, 324 * 0.2645833333, 0)));
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(380 * 0.2645833333, 324 * 0.2645833333, 0)));
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(310 * 0.2645833333, 370 * 0.2645833333, 0)));
+//        objectPoints.push_back(new MatOfPoint3f(new Point3(380 * 0.2645833333, 370 * 0.2645833333, 0)));
+        for (int i = 0; i < imagePoints.rows(); i++) {
+            objectPoints.push_back(new MatOfPoint3f(new Point3(imagePoints.get(i, 0)[0] * 0.2645833333, imagePoints.get(i, 0)[1] * 0.2645833333, 0)));
+        }
         solvePnP(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector2, tVector2);
 
         utils.calculatePPM(Arrays.asList(rVector1, rVector2), Arrays.asList(tVector1, tVector2), intrinsic);
 
         Mat PPM1 = new Mat();
         Mat PPM2 = new Mat();
-        List<Mat> result = CalibrationUtils.loadPPM(PPM1, PPM2);
+        result = CalibrationUtils.loadPPM(PPM1, PPM2);
 
         PPM1 = result.get(0);
         PPM2 = result.get(1);
-        Mat good_matches_1;
-        Mat good_matches_2;
-        result = utils.computeEpiLines(calibration_image_1, calibration_image_2, null, null);
-        good_matches_1 = result.get(0);
-        good_matches_2 = result.get(1);
 
         RectificationModel rectiResults = rectification.doRectification(PPM1, PPM2, good_matches_1, good_matches_2);
 
