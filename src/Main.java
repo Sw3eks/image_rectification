@@ -46,11 +46,18 @@ public class Main {
         objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_1.cols(), 0.0f, 0.0f)));
         objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_1.cols(), calibration_image_1.rows(), 0.0f)));
         objectPoints.push_back(new MatOfPoint3f(new Point3(0.0f, calibration_image_1.rows(), 0.0f)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(320, 240, 0))); // Mittelpunkt
+        objectPoints.push_back(new MatOfPoint3f(new Point3(446, 265, 0))); // Kamera unten rechts
+        objectPoints.push_back(new MatOfPoint3f(new Point3(232, 256, 0))); // Kamera unten links
         MatOfPoint2f imagePoints = new MatOfPoint2f();
-        imagePoints.push_back(new MatOfPoint2f(new Point(0.0f, 0.0f)));
-        imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_1.cols(), 0.0f)));
+        // Known points
+        imagePoints.push_back(new MatOfPoint2f(new Point(0, 0)));
+        imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_1.cols(), 0)));
         imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_1.cols(), calibration_image_1.rows())));
-        imagePoints.push_back(new MatOfPoint2f(new Point(0.0f, calibration_image_1.rows())));
+        imagePoints.push_back(new MatOfPoint2f(new Point(0, calibration_image_1.rows())));
+        imagePoints.push_back(new MatOfPoint2f(new Point(320, 240))); // Mittelpunkt
+        imagePoints.push_back(new MatOfPoint2f(new Point(446, 265))); // Kamera unten rechts
+        imagePoints.push_back(new MatOfPoint2f(new Point(232, 256))); // Kamera unten links
         solvePnP(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector1, tVector1);
 
         Mat rVector2 = new Mat();
@@ -60,11 +67,17 @@ public class Main {
         objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_2.cols(), 0.0f, 0.0f)));
         objectPoints.push_back(new MatOfPoint3f(new Point3(calibration_image_2.cols(), calibration_image_2.rows(), 0.0f)));
         objectPoints.push_back(new MatOfPoint3f(new Point3(0.0f, calibration_image_2.rows(), 0.0f)));
+        objectPoints.push_back(new MatOfPoint3f(new Point3(320, 240, 0))); // Mittelpunkt
+        objectPoints.push_back(new MatOfPoint3f(new Point3(436, 259, 0))); // Kamera unten rechts
+        objectPoints.push_back(new MatOfPoint3f(new Point3(223, 273, 0))); // Kamera unten links
         imagePoints = new MatOfPoint2f();
         imagePoints.push_back(new MatOfPoint2f(new Point(0.0f, 0.0f)));
         imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_2.cols(), 0.0f)));
         imagePoints.push_back(new MatOfPoint2f(new Point(calibration_image_2.cols(), calibration_image_2.rows())));
         imagePoints.push_back(new MatOfPoint2f(new Point(0.0f, calibration_image_2.rows())));
+        imagePoints.push_back(new MatOfPoint2f(new Point(320, 240))); // Mittelpunkt
+        imagePoints.push_back(new MatOfPoint2f(new Point(436, 259))); // Kamera unten rechts
+        imagePoints.push_back(new MatOfPoint2f(new Point(223, 273))); // Kamera unten links
         solvePnP(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector2, tVector2);
 
         utils.calculatePPM(Arrays.asList(rVector1, rVector2), Arrays.asList(tVector1, tVector2), intrinsic);
