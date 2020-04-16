@@ -1,9 +1,7 @@
-import org.opencv.calib3d.Calib3d;
+import models.CalibrationModel;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
-import utils.CalibrationUtils;
 import utils.Utils;
 
 import java.util.ArrayList;
@@ -40,33 +38,10 @@ public class Calibration {
         this.distCoeffs = new Mat();
     }
 
-    public void createKnownBoardPosition() {
-        for (int i = 0; i < chessboardDimensions.height; i++) {
-            for (int j = 0; j < chessboardDimensions.width; j++) {
-                obj.push_back(new MatOfPoint3f(new Point3(j * calibrationSquareDimension, i * calibrationSquareDimension, 0.0f)));
-            }
-        }
-    }
-
-    public void getChessBoardCorners(List<Mat> images) {
-        for (Mat image : images) {
-            obj = new MatOfPoint3f();
-            createKnownBoardPosition();
-            Mat grayimg = new Mat();
-            Imgproc.cvtColor(image, grayimg, Imgproc.COLOR_BGR2GRAY);
-            MatOfPoint2f pointBuf = new MatOfPoint2f();
-            boolean found = findChessboardCorners(grayimg, chessboardDimensions, pointBuf, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
-            if (found) {
-                TermCriteria term = new TermCriteria(TermCriteria.EPS | TermCriteria.MAX_ITER, 30, 0.1);
-                Imgproc.cornerSubPix(grayimg, pointBuf, new Size(11, 11), new Size(-1, -1), term);
-
-                this.imagePoints.add(pointBuf);
-                this.objectPoints.add(obj);
-            }
-
-        }
-    }
-
+    /**
+     * starts the webcam and detects chessboard corners in a pattern
+     * take images by pressing 'space' till the threshold (at least 10) to calibrate camera
+     */
     public void takeImages() {
         init();
         Mat frame = new Mat();
@@ -105,16 +80,10 @@ public class Calibration {
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
                         }
-                        if (objectPoints.size() > 19) {
-                            cameraCalibration(null);
+                        if (objectPoints.size() > 15) {
+                            cameraCalibration(null, 0, 1);
                         }
                         i++;
-                        break;
-                    case 13: // 13 = enter key event
-                        System.out.println("Enter");
-                        if (objectPoints.size() > 15) {
-                            cameraCalibration(null);
-                        }
                         break;
                     case 27: // 27 = esc key event
                         System.out.println("Esc");
@@ -127,7 +96,15 @@ public class Calibration {
 
     }
 
-    public void cameraCalibration(List<Mat> calibrationImages) {
+    /**
+     * Calibrates the camera for the given images
+     *
+     * @param calibrationImages images for calibration
+     * @param index_1           index for image 1
+     * @param index_2           index for image 2
+     * @return image points of the images with the given index
+     */
+    public CalibrationModel cameraCalibration(List<Mat> calibrationImages, int index_1, int index_2) {
 
         if (calibrationImages != null) {
 
@@ -147,15 +124,43 @@ public class Calibration {
 
         double result = calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
         calculatePPM(rVectors, tVectors);
-        boolean isCalibrated = saveCameraCalibration(intrinsic, distCoeffs);
+        boolean isCalibrated = saveCameraCalibration("cameraParams", intrinsic, distCoeffs);
         if (isCalibrated) {
             System.out.println("Done");
         }
         System.out.println("Result: " + result);
+        return new CalibrationModel(imagePoints.get(index_1), imagePoints.get(index_2));
+    }
+
+    public void createKnownBoardPosition() {
+        for (int i = 0; i < chessboardDimensions.height; i++) {
+            for (int j = 0; j < chessboardDimensions.width; j++) {
+                obj.push_back(new MatOfPoint3f(new Point3(j * calibrationSquareDimension, i * calibrationSquareDimension, 0.0f)));
+            }
+        }
+    }
+
+    public void getChessBoardCorners(List<Mat> images) {
+        for (Mat image : images) {
+            obj = new MatOfPoint3f();
+            createKnownBoardPosition();
+            Mat grayimg = new Mat();
+            Imgproc.cvtColor(image, grayimg, Imgproc.COLOR_BGR2GRAY);
+            MatOfPoint2f pointBuf = new MatOfPoint2f();
+            boolean found = findChessboardCorners(grayimg, chessboardDimensions, pointBuf, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
+            if (found) {
+                TermCriteria term = new TermCriteria(TermCriteria.EPS | TermCriteria.MAX_ITER, 30, 0.1);
+                Imgproc.cornerSubPix(grayimg, pointBuf, new Size(11, 11), new Size(-1, -1), term);
+
+                this.imagePoints.add(pointBuf);
+                this.objectPoints.add(obj);
+            }
+
+        }
     }
 
     public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors) {
         Utils utils = new Utils();
-        utils.calculatePPM(rVectors, tVectors, intrinsic);
+        utils.calculatePPM("projectionMatrices", rVectors, tVectors, intrinsic);
     }
 }

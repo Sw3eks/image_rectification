@@ -11,10 +11,19 @@ import static org.opencv.core.CvType.CV_64F;
 
 public class CalibrationUtils {
 
-    public static boolean savePPM(Mat PPM1, Mat PPM2) {
+    /**
+     * Util function to save Camera Projection Matrices
+     * <p>
+     *
+     * @param fileName name of the file with the saved values
+     * @param PPM1     input projection matrix 1
+     * @param PPM2     input projection matrix 2
+     * @return result whether saving was successful
+     */
+    public static boolean savePPM(String fileName, Mat PPM1, Mat PPM2) {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("ppm_1.txt");
+            fStream = new FileWriter(fileName);
             BufferedWriter out = new BufferedWriter(fStream);
 
 
@@ -53,10 +62,18 @@ public class CalibrationUtils {
         return false;
     }
 
-    public static List<Mat> loadPPM(Mat PPM1, Mat PPM2) {
+    /**
+     * Util function to load Camera Projection Matrices
+     *
+     * @param fileName name of the file with the saved values
+     * @param PPM1     projection matrix 1 to be loaded
+     * @param PPM2     projection matrix 2 to be loaded
+     * @return List of the loaded projection matrices
+     */
+    public static List<Mat> loadPPM(String fileName, Mat PPM1, Mat PPM2) {
         FileReader reader;
         try {
-            reader = new FileReader("ppm_1.txt");
+            reader = new FileReader(fileName);
             BufferedReader in = new BufferedReader(reader);
             int rows = Integer.parseInt(in.readLine());
             int columns = Integer.parseInt(in.readLine());
@@ -95,10 +112,18 @@ public class CalibrationUtils {
         return Arrays.asList(PPM1, PPM2);
     }
 
-    public static boolean saveCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
+    /**
+     * Util function to save camera calibration parameters
+     *
+     * @param fileName     name of the file with the saved values
+     * @param cameraMatrix input camera matrix
+     * @param distCoeffs   input distortion coefficients
+     * @return result whether saving was successful
+     */
+    public static boolean saveCameraCalibration(String fileName, Mat cameraMatrix, Mat distCoeffs) {
         FileWriter fStream = null;
         try {
-            fStream = new FileWriter("out_1.txt");
+            fStream = new FileWriter(fileName);
             BufferedWriter out = new BufferedWriter(fStream);
 
             out.write(cameraMatrix.rows() + "\n");
@@ -135,10 +160,18 @@ public class CalibrationUtils {
         return false;
     }
 
-    public static List<Mat> loadCameraCalibration(Mat cameraMatrix, Mat distCoeffs) {
+    /**
+     * Util function to load camera calibration parameters
+     *
+     * @param fileName     name of the file with the saved values
+     * @param cameraMatrix camera matrix to be loaded
+     * @param distCoeffs   distortion coefficients to be loaded
+     * @return List of the loaded camera calibration parameters
+     */
+    public static List<Mat> loadCameraCalibration(String fileName, Mat cameraMatrix, Mat distCoeffs) {
         FileReader reader;
         try {
-            reader = new FileReader("out_2.txt");
+            reader = new FileReader(fileName);
             BufferedReader in = new BufferedReader(reader);
             int rows = Integer.parseInt(in.readLine());
             int columns = Integer.parseInt(in.readLine());

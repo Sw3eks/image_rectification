@@ -1,3 +1,5 @@
+package matcher;
+
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.DescriptorMatcher;
@@ -12,6 +14,9 @@ import static org.opencv.core.CvType.CV_32F;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
+/**
+ * Detects and matches feature points in 2 given images
+ */
 public class MatchingPointsDetector {
 
     MatOfKeyPoint srcKeyPoints, dstKeyPoints;
@@ -65,9 +70,7 @@ public class MatchingPointsDetector {
         Mat outImg = new Mat(img1.rows(), img1.cols() * 2, img1.type());
         Features2d.drawMatches(img1, keyPoints1, img2, keyPoints2, goodMatches, outImg);
 
-        imwrite("./res/output/detect1.jpg", img1);
-        imwrite("./res/output/detect2.jpg", img2);
-        imwrite("./res/output/detect3.jpg", outImg);
+        imwrite("./res/output/epipolar/combined_epipolar.jpg", outImg);
 
     }
 

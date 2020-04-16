@@ -22,13 +22,13 @@ public class Utils {
     private Mat imageOne;
     private Mat imageTwo;
 
-    public List<Mat> computeEpiLines(Mat firstImage, Mat secondImage, MatOfPoint2f firstImagePoints, MatOfPoint2f secondImagePoints) {
+    public List<Mat> computeEpiLines(Mat firstImage, Mat secondImage, Mat firstImagePoints, Mat secondImagePoints) {
         this.imageOne = firstImage;
         this.imageTwo = secondImage;
 
         if (firstImagePoints != null && secondImagePoints != null) {
-            good_matches_1 = firstImagePoints;
-            good_matches_2 = secondImagePoints;
+            good_matches_1 = new MatOfPoint2f(firstImagePoints);
+            good_matches_2 = new MatOfPoint2f(secondImagePoints);
         } else {
             good_matches_1 = new MatOfPoint2f();
             good_matches_2 = new MatOfPoint2f();
@@ -40,14 +40,9 @@ public class Utils {
         computeCorrespondEpilines(good_matches_1, 1, fund_mat, lines_2);
         computeCorrespondEpilines(good_matches_2, 2, fund_mat, lines_1);
 
-//        Mat img1WithLines = drawLines(imageOne, lines_1);
-//        Mat img2WithLines = drawLines(imageTwo, lines_2);
         drawEpilines(lines_1, lines_2);
 
-        imwrite("./res/output/epipolar_output1.jpg", imageOne);
-        imwrite("./res/output/epipolar_output2.jpg", imageTwo);
-
-        return Arrays.asList(good_matches_1, good_matches_2, lines_1, lines_2);
+        return Arrays.asList(good_matches_1, good_matches_2, imageOne, imageTwo);
     }
 
     private Mat fundamentalMat() {
@@ -66,8 +61,8 @@ public class Utils {
             second = matches.get(1);
             flag |= FM_RANSAC;
         } else {
-            first = good_matches_1.submat(0, 8, 0, 1);
-            second = good_matches_2.submat(0, 8, 0, 1);
+            first = good_matches_1;
+            second = good_matches_2;
         }
 
 
@@ -96,8 +91,8 @@ public class Utils {
         Mat descriptors1;
         Mat descriptors2;
 
-        descriptors1 = detectFeatures(imageOne, "ORB2", keyPoints1);
-        descriptors2 = detectFeatures(imageTwo, "ORB2", keyPoints2);
+        descriptors1 = detectFeatures(imageOne, "ORB", keyPoints1);
+        descriptors2 = detectFeatures(imageTwo, "ORB", keyPoints2);
 
         // 2 - Match both descriptors using required detector
         // Declare the matcher
@@ -150,37 +145,24 @@ public class Utils {
     private Mat detectFeatures(Mat image, String det_id, MatOfKeyPoint keyPoints1) {
         // Declare detector
         Feature2D detector;
+        Mat descriptors = new Mat();
 
-        // Define detector
-        if (det_id.equals("ORB")) {
-            // Declare ORB detector
-            detector = ORB.create(
-                    500,
-                    1.2f,
-                    4,
-                    21,
-                    0,
-                    2,
-                    ORB.HARRIS_SCORE,
-                    21,
-                    20
-            );
-        } else {
+        // Define FAST detector
+        detector = FastFeatureDetector.create();
+        // Detect and compute with ORB (FAST cannot compute)!
+        detector.detect(image, keyPoints1);
+        detector = ORB.create(500, 1.2f, 4, 21, 0, 2, ORB.HARRIS_SCORE, 21, 20);
+        detector.compute(image, keyPoints1, descriptors);
+        if (det_id.equals("BRISK")) {
             // Declare BRISK and BRISK detectors
             detector = BRISK.create(
                     30,   // thresh = 30
                     3,    // octaves = 3
                     1.0f  // patternScale = 1.0f
             );
+            detector.detect(image, keyPoints1);
+            detector.compute(image, keyPoints1, descriptors);
         }
-
-        // Declare array for storing the descriptors
-        Mat descriptors = new Mat();
-
-        // Detect and compute!
-        detector.detect(image, keyPoints1);
-        detector.compute(image, keyPoints1, descriptors);
-
         return descriptors;
     }
 
@@ -199,7 +181,7 @@ public class Utils {
                                 -lines_1.get(line, 0)[2] / lines_1.get(line, 0)[1]),
                         new Point(imageOne.cols(),
                                 -(lines_1.get(line, 0)[2] + lines_1.get(line, 0)[0] * imageOne.cols()) / lines_1.get(line, 0)[1]),
-                        color
+                        color, 1
                 );
                 Imgproc.circle(imageOne,
                         new Point(good_matches_1.toArray()[line].x, good_matches_1.toArray()[line].y),
@@ -212,7 +194,7 @@ public class Utils {
                                 -lines_2.get(line, 0)[2] / lines_2.get(line, 0)[1]),
                         new Point(imageTwo.cols(),
                                 -(lines_2.get(line, 0)[2] + lines_2.get(line, 0)[0] * imageTwo.cols()) / lines_2.get(line, 0)[1]),
-                        color
+                        color, 1
                 );
 
                 Imgproc.circle(imageTwo,
@@ -224,7 +206,7 @@ public class Utils {
         }
     }
 
-    public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors, Mat intrinsic) {
+    public void calculatePPM(String fileName, List<Mat> rVectors, List<Mat> tVectors, Mat intrinsic) {
         Mat r1 = rVectors.get(0);
         Mat r2 = rVectors.get(1);
         Mat R1 = new Mat();
@@ -238,14 +220,13 @@ public class Utils {
         Mat Rt2 = new Mat();
         Core.hconcat(List.of(R1, t1), Rt1);
         Core.hconcat(List.of(R2, t2), Rt2);
-        System.out.println("Rt1: " + Rt1.dump());
 
         Mat PPM1 = new Mat();
         Mat PPM2 = new Mat();
         Core.gemm(intrinsic, Rt1, 1, new Mat(), 0, PPM1, 0);
         Core.gemm(intrinsic, Rt2, 1, new Mat(), 0, PPM2, 0);
 
-        boolean result = CalibrationUtils.savePPM(PPM1, PPM2);
+        boolean result = CalibrationUtils.savePPM(fileName, PPM1, PPM2);
         if (result) {
             System.out.println("Saved PPM!");
             System.out.println("PPM1: " + PPM1.dump());
@@ -256,6 +237,6 @@ public class Utils {
     public void undistortImages(Mat image, Mat intrinsic, Mat distCoeffs, int index) {
         Mat undistortedImage = new Mat();
         Calib3d.undistort(image, undistortedImage, intrinsic, distCoeffs);
-        imwrite("./res/output/undistorted/undistort" + index + ".jpg", undistortedImage);
+        imwrite("./res/output/undistorted/undistorted" + index + ".jpg", undistortedImage);
     }
 }
