@@ -53,7 +53,7 @@ public class Calibration {
         }
         int framesPerSecond = 20;
         namedWindow("Webcam", WINDOW_AUTOSIZE); // 640 * 480
-        int i = 2;
+
         while (capture.read(frame)) {
 
             capture.read(frame);
@@ -73,17 +73,17 @@ public class Calibration {
 
                 switch (character) {
                     case 32: // 32 = space key event
-                        imwrite("./res/output/calibration/testbilder" + i + ".jpg", frame);
-                        System.out.println("found " + objectPoints.size());
                         if (found) {
+                            imwrite("./res/output/calibration/calib" + objectPoints.size() + ".jpg", frame);
+                            imwrite("./res/output/calibration/calibWithChess" + objectPoints.size() + ".jpg", drawToFrame);
+                            System.out.println("found " + objectPoints.size());
                             this.imagePoints.add(imageCorners);
                             imageCorners = new MatOfPoint2f();
                             this.objectPoints.add(obj);
                         }
-                        if (objectPoints.size() > 15) {
+                        if (objectPoints.size() > 31) {
                             cameraCalibration(null, 0, 1);
                         }
-                        i++;
                         break;
                     case 27: // 27 = esc key event
                         System.out.println("Esc");

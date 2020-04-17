@@ -34,11 +34,11 @@ public class Main {
         calibration.init();
 
         // used to calibrate a connected/embedded webcam by taking images
-        calibration.takeImages();
+        //calibration.takeImages();
 
         // which images in folder /res/calibration shall be rectified
-        int index_image_1 = 0;
-        int index_image_2 = 1;
+        int index_image_1 = 1;
+        int index_image_2 = 3;
         CalibrationModel calibrationModel = new CalibrationModel(null, null);
         // used to calibrate with a given set of images saved in the /res folder
         try {
@@ -94,13 +94,13 @@ public class Main {
         imwrite(OUTPUT_PATH + "rectification/rectified_image_4.jpg", rectiResults.getRectifiedImage2());
 
         // loads the rectified images and draws epilines
-//        result = utils.computeEpiLines(
-//                rectiResults.getRectifiedImage1(),
-//                rectiResults.getRectifiedImage2(),
-//                rectiResults.getRectifiedImagePoints1(),
-//                rectiResults.getRectifiedImagePoints2());
-//        imwrite("./res/output/epipolar/epipolar_output_3.jpg", result.get(2));
-//        imwrite("./res/output/epipolar/epipolar_output_4.jpg", result.get(3));
+        result = utils.computeEpiLines(
+                rectiResults.getRectifiedImage1(),
+                rectiResults.getRectifiedImage2(),
+                rectiResults.getRectifiedImagePoints1(),
+                rectiResults.getRectifiedImagePoints2());
+        imwrite("./res/output/epipolar/epipolar_output_3.jpg", result.get(2));
+        imwrite("./res/output/epipolar/epipolar_output_4.jpg", result.get(3));
         // detects and matches keyPoints and draws epiLines in 1 combined image
 //       MatchingPointsDetector detector = new MatchingPointsDetector(rectiResults.getRectifiedImage1(), rectiResults.getRectifiedImage2());
 //       detector.matchImages(calibrationModel.getCalibrationImagePoints1(), calibrationModel.getCalibrationImagePoints1());
