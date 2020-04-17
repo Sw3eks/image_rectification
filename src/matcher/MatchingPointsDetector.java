@@ -6,6 +6,7 @@ import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.FastFeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.features2d.ORB;
+import org.opencv.utils.Converters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +31,14 @@ public class MatchingPointsDetector {
         this.img2 = img2;
     }
 
-    public void matchImages() {
+    public void matchImages(Mat imagePoints1, Mat imagePoints2) {
         MatOfKeyPoint keyPoints1 = new MatOfKeyPoint();
         MatOfKeyPoint keyPoints2 = new MatOfKeyPoint();
+        keyPoints1.push_back(imagePoints1);
+        keyPoints2.push_back(imagePoints2);
         Mat descriptors1 = new Mat();
         Mat descriptors2 = new Mat();
-        detectKeyPoints(keyPoints1, keyPoints2, descriptors1, descriptors2);
+//        detectKeyPoints(keyPoints1, keyPoints2, descriptors1, descriptors2);
 
         this.srcKeyPoints = keyPoints1;
         this.dstKeyPoints = keyPoints2;
