@@ -24,7 +24,8 @@ public class MatchingPointsDetector {
     MatOfPoint2f srcSortedGoodPoints, dstSortedGoodPoints;
     MatOfDMatch matches;
 
-    private Mat img1, img2;
+    private final Mat img1;
+    private final Mat img2;
 
     public MatchingPointsDetector(Mat img1, Mat img2) {
         this.img1 = img1;
@@ -38,7 +39,7 @@ public class MatchingPointsDetector {
         keyPoints2.push_back(imagePoints2);
         Mat descriptors1 = new Mat();
         Mat descriptors2 = new Mat();
-//        detectKeyPoints(keyPoints1, keyPoints2, descriptors1, descriptors2);
+        detectKeyPoints(keyPoints1, keyPoints2, descriptors1, descriptors2);
 
         this.srcKeyPoints = keyPoints1;
         this.dstKeyPoints = keyPoints2;
@@ -118,7 +119,6 @@ public class MatchingPointsDetector {
 
         ArrayList<Point> pointsList1 = new ArrayList<>();
         ArrayList<Point> pointsList2 = new ArrayList<>();
-
         for (MatOfDMatch match : matches) {
             pointsList1.add(kplist1.get((int) (match.get(0, 0)[0])).pt);
             pointsList2.add(kplist2.get((int) (match.get(0, 0)[1])).pt);

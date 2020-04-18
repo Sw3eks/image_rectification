@@ -14,7 +14,7 @@ import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import static utils.CalibrationUtils.saveCameraCalibration;
 
 public class Calibration {
-    private final float calibrationSquareDimension = 0.024f; // meters
+    private final float calibrationSquareDimension = 0.0245f; // meters
     private final Size chessboardDimensions = new Size(9, 6);
 
     private VideoCapture capture;

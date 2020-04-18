@@ -34,11 +34,11 @@ public class Main {
         calibration.init();
 
         // used to calibrate a connected/embedded webcam by taking images
-        //calibration.takeImages();
+//        calibration.takeImages();
 
         // which images in folder /res/calibration shall be rectified
-        int index_image_1 = 1;
-        int index_image_2 = 3;
+        int index_image_1 = 0;
+        int index_image_2 = 1;
         CalibrationModel calibrationModel = new CalibrationModel(null, null);
         // used to calibrate with a given set of images saved in the /res folder
         try {
@@ -104,6 +104,8 @@ public class Main {
         // detects and matches keyPoints and draws epiLines in 1 combined image
 //       MatchingPointsDetector detector = new MatchingPointsDetector(rectiResults.getRectifiedImage1(), rectiResults.getRectifiedImage2());
 //       detector.matchImages(calibrationModel.getCalibrationImagePoints1(), calibrationModel.getCalibrationImagePoints1());
+
+        utils.mergeImagesAndDrawLine(rectiResults.getRectifiedImage1(), rectiResults.getRectifiedImage2(), rectiResults.getRectifiedImagePoints1(), rectiResults.getRectifiedImagePoints2());
     }
 
     /**
@@ -114,7 +116,7 @@ public class Main {
      */
     private static List<Mat> loadImages() throws FileNotFoundException {
         List<Mat> images = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 32; i++) {
             String currImageName = "calib" + i + ".jpg";
 
             // Load image

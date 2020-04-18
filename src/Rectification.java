@@ -29,8 +29,8 @@ public class Rectification {
         // applies the transformation matrices calculated by 'rectify' to the given images
         Mat rectifiedImage1 = new Mat();
         Mat rectifiedImage2 = new Mat();
-        Imgproc.warpPerspective(image1, rectifiedImage1, rectificationModel.getT1(), image1.size());
-        Imgproc.warpPerspective(image2, rectifiedImage2, rectificationModel.getT2(), new Size(1000, 500));
+        Imgproc.warpPerspective(image1, rectifiedImage1, rectificationModel.getT1(), new Size(1000, 500));
+        Imgproc.warpPerspective(image2, rectifiedImage2, rectificationModel.getT2(), new Size(1500, 500));
 
         // Transform the image points:
         Mat imagePointsTransformed1 = new Mat();
@@ -99,7 +99,7 @@ public class Rectification {
         Mat A = new Mat();
         A_sum.convertTo(A, A_sum.type(), 0.5);
         A.put(0, 1, 0); // set skew to zero
-        //A.put(0, 2, A.get(0, 2)[0] + 1000); // to recenter
+//        A.put(0, 2, A.get(0, 2)[0] - 300); // to recenter
 
         Mat R_times_c1_neg = new Mat();
         Mat R_times_c2_neg = new Mat();

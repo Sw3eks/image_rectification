@@ -239,4 +239,32 @@ public class Utils {
         Calib3d.undistort(image, undistortedImage, intrinsic, distCoeffs);
         imwrite("./res/output/undistorted/undistorted" + index + ".jpg", undistortedImage);
     }
+
+    public void mergeImagesAndDrawLine(Mat imageOne, Mat imageTwo, Mat imagePoints1, Mat imagePoints2) {
+        Mat dst = new Mat();
+        List<Mat> src = Arrays.asList(imageOne, imageTwo);
+        Core.hconcat(src, dst);
+
+        Scalar color = new Scalar(Math.random() * 255,
+                Math.random() * 255,
+                Math.random() * 255);
+        Imgproc.line(dst,
+                new Point(0,
+                        imagePoints1.get(0, 0)[1]),
+                new Point(dst.cols(),
+                        imagePoints2.get(0, 0)[1]),
+                color, 2
+        );
+//        Imgproc.circle(dst,
+//                new Point(imagePoints1.get(0, 0)[0], imagePoints1.get(0, 0)[1]),
+//                4,
+//                color,
+//                FILLED);
+//        Imgproc.circle(dst,
+//                new Point(imagePoints1.get(0, 0)[0] + imagePoints2.get(0, 0)[0], imagePoints2.get(0, 0)[1]),
+//                4,
+//                color,
+//                FILLED);
+        imwrite("./res/output/epipolar/combined_epipolar.jpg", dst);
+    }
 }
