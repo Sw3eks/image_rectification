@@ -35,8 +35,8 @@ public class MatchingPointsDetector {
     public void matchImages(Mat imagePoints1, Mat imagePoints2) {
         MatOfKeyPoint keyPoints1 = new MatOfKeyPoint();
         MatOfKeyPoint keyPoints2 = new MatOfKeyPoint();
-        keyPoints1.push_back(imagePoints1);
-        keyPoints2.push_back(imagePoints2);
+        //keyPoints1.push_back(imagePoints1);
+        //keyPoints2.push_back(imagePoints2);
         Mat descriptors1 = new Mat();
         Mat descriptors2 = new Mat();
         detectKeyPoints(keyPoints1, keyPoints2, descriptors1, descriptors2);

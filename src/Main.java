@@ -1,3 +1,4 @@
+import matcher.MatchingPointsDetector;
 import models.CalibrationModel;
 import models.RectificationModel;
 import org.opencv.core.*;
@@ -102,8 +103,8 @@ public class Main {
 //        imwrite("./res/output/epipolar/epipolar_output_3.jpg", result.get(2));
 //        imwrite("./res/output/epipolar/epipolar_output_4.jpg", result.get(3));
         // detects and matches keyPoints and draws epiLines in 1 combined image
-//       MatchingPointsDetector detector = new MatchingPointsDetector(rectiResults.getRectifiedImage1(), rectiResults.getRectifiedImage2());
-//       detector.matchImages(calibrationModel.getCalibrationImagePoints1(), calibrationModel.getCalibrationImagePoints1());
+//        MatchingPointsDetector detector = new MatchingPointsDetector(image_1, image_2);
+//        detector.matchImages(calibrationModel.getCalibrationImagePoints1(), calibrationModel.getCalibrationImagePoints1());
 
         utils.mergeImagesAndDrawLine(rectiResults.getRectifiedImage1(), rectiResults.getRectifiedImage2(), rectiResults.getRectifiedImagePoints1(), rectiResults.getRectifiedImagePoints2());
     }
@@ -137,7 +138,7 @@ public class Main {
      * @param good_matches_1 input for matching feature points in image 1
      * @param good_matches_2 input for matching feature points in image 2
      */
-    private static void loadAndComputePPM(Mat good_matches_1, Mat good_matches_2) {
+    private static void calculateImageVectors(Mat good_matches_1, Mat good_matches_2) {
         Mat intrinsic = new Mat();
         Mat distCoeffs = new Mat();
         List<Mat> resultCamera = CalibrationUtils.loadCameraCalibration(CAMERA_PARAMS_FILENAME, intrinsic, distCoeffs);
