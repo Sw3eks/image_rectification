@@ -123,7 +123,8 @@ public class Calibration {
         distCoeffs = Mat.zeros(5, 1, CV_64F);
 
         double result = calibrateCamera(objectPoints, imagePoints, chessboardDimensions, intrinsic, distCoeffs, rVectors, tVectors);
-        calculatePPM(rVectors, tVectors);
+        Utils utils = new Utils();
+        utils.calculatePPM("projectionMatrices", rVectors, tVectors, intrinsic, index_1, index_2);
         boolean isCalibrated = saveCameraCalibration("cameraParams", intrinsic, distCoeffs);
         if (isCalibrated) {
             System.out.println("Done");
@@ -157,10 +158,5 @@ public class Calibration {
             }
 
         }
-    }
-
-    public void calculatePPM(List<Mat> rVectors, List<Mat> tVectors) {
-        Utils utils = new Utils();
-        utils.calculatePPM("projectionMatrices", rVectors, tVectors, intrinsic);
     }
 }

@@ -1,4 +1,3 @@
-import matcher.MatchingPointsDetector;
 import models.CalibrationModel;
 import models.RectificationModel;
 import org.opencv.core.*;
@@ -12,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.opencv.calib3d.Calib3d.solvePnPRansac;
-import static org.opencv.calib3d.Calib3d.undistortPoints;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Main {
@@ -36,7 +34,7 @@ public class Main {
         // used to calibrate a connected/embedded webcam by taking images
 //        calibration.takeImages();
 
-        // which images in folder /res/calibration shall be rectified
+        // which images in folder /res/output/calibration shall be rectified
         int index_image_1 = 0;
         int index_image_2 = 1;
         CalibrationModel calibrationModel = new CalibrationModel(null, null);
@@ -55,17 +53,17 @@ public class Main {
         Mat calibration_image_1 = Imgcodecs.imread(OUTPUT_PATH + "calibration/calib" + index_image_1 + ".jpg");
         Mat calibration_image_2 = Imgcodecs.imread(OUTPUT_PATH + "calibration/calib" + index_image_2 + ".jpg");
         // load camera params to undistort images
-        Mat intrinsic = new Mat();
-        Mat distCoeffs = new Mat();
-        List<Mat> resultCamera = CalibrationUtils.loadCameraCalibration(CAMERA_PARAMS_FILENAME, intrinsic, distCoeffs);
-        intrinsic = resultCamera.get(0);
-        distCoeffs = resultCamera.get(1);
-        utils.undistortImages(calibration_image_1, intrinsic, distCoeffs, 1);
-        utils.undistortImages(calibration_image_2, intrinsic, distCoeffs, 2);
-        MatOfPoint2f undistortedPoints1 = new MatOfPoint2f();
-        MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
-        undistortPoints(new MatOfPoint2f(calibrationModel.getCalibrationImagePoints1()), undistortedPoints1, intrinsic, distCoeffs);
-        undistortPoints(new MatOfPoint2f(calibrationModel.getCalibrationImagePoints2()), undistortedPoints2, intrinsic, distCoeffs);
+//        Mat intrinsic = new Mat();
+//        Mat distCoeffs = new Mat();
+//        List<Mat> resultCamera = CalibrationUtils.loadCameraCalibration(CAMERA_PARAMS_FILENAME, intrinsic, distCoeffs);
+//        intrinsic = resultCamera.get(0);
+//        distCoeffs = resultCamera.get(1);
+//        utils.undistortImages(calibration_image_1, intrinsic, distCoeffs, 1);
+//        utils.undistortImages(calibration_image_2, intrinsic, distCoeffs, 2);
+//        MatOfPoint2f undistortedPoints1 = new MatOfPoint2f();
+//        MatOfPoint2f undistortedPoints2 = new MatOfPoint2f();
+//        undistortPoints(new MatOfPoint2f(calibrationModel.getCalibrationImagePoints1()), undistortedPoints1, intrinsic, distCoeffs);
+//        undistortPoints(new MatOfPoint2f(calibrationModel.getCalibrationImagePoints2()), undistortedPoints2, intrinsic, distCoeffs);
 
         List<Mat> result;
         // detects & computes matching feature points in the 2 given images and draws epilines
@@ -84,6 +82,8 @@ public class Main {
         PPM1 = result.get(0);
         PPM2 = result.get(1);
 
+        //utils.mergeImagesAndDrawLine(calibration_image_1, calibration_image_2,
+        //       calibrationModel.getCalibrationImagePoints1(),calibrationModel.getCalibrationImagePoints2());
         // rectification process
         RectificationModel rectiResults = rectification.doRectification(PPM1, PPM2,
                 calibration_image_1,
@@ -94,13 +94,13 @@ public class Main {
         imwrite(OUTPUT_PATH + "rectification/rectified_image_4.jpg", rectiResults.getRectifiedImage2());
 
         // loads the rectified images and draws epilines
-        result = utils.computeEpiLines(
-                rectiResults.getRectifiedImage1(),
-                rectiResults.getRectifiedImage2(),
-                rectiResults.getRectifiedImagePoints1(),
-                rectiResults.getRectifiedImagePoints2());
-        imwrite("./res/output/epipolar/epipolar_output_3.jpg", result.get(2));
-        imwrite("./res/output/epipolar/epipolar_output_4.jpg", result.get(3));
+//        result = utils.computeEpiLines(
+//                rectiResults.getRectifiedImage1(),
+//                rectiResults.getRectifiedImage2(),
+//                rectiResults.getRectifiedImagePoints1(),
+//                rectiResults.getRectifiedImagePoints2());
+//        imwrite("./res/output/epipolar/epipolar_output_3.jpg", result.get(2));
+//        imwrite("./res/output/epipolar/epipolar_output_4.jpg", result.get(3));
         // detects and matches keyPoints and draws epiLines in 1 combined image
 //       MatchingPointsDetector detector = new MatchingPointsDetector(rectiResults.getRectifiedImage1(), rectiResults.getRectifiedImage2());
 //       detector.matchImages(calibrationModel.getCalibrationImagePoints1(), calibrationModel.getCalibrationImagePoints1());
@@ -192,7 +192,7 @@ public class Main {
         solvePnPRansac(objectPoints, imagePoints, intrinsic, new MatOfDouble(distCoeffs), rVector2, tVector2, false, 100);
 
         Utils utils = new Utils();
-        utils.calculatePPM(PROJECTION_MATRICES_FILENAME, Arrays.asList(rVector1, rVector2), Arrays.asList(tVector1, tVector2), intrinsic);
+        utils.calculatePPM(PROJECTION_MATRICES_FILENAME, Arrays.asList(rVector1, rVector2), Arrays.asList(tVector1, tVector2), intrinsic, 0, 1);
 
     }
 }

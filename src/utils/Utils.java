@@ -206,9 +206,9 @@ public class Utils {
         }
     }
 
-    public void calculatePPM(String fileName, List<Mat> rVectors, List<Mat> tVectors, Mat intrinsic) {
-        Mat r1 = rVectors.get(0);
-        Mat r2 = rVectors.get(1);
+    public void calculatePPM(String fileName, List<Mat> rVectors, List<Mat> tVectors, Mat intrinsic, int index1, int index2) {
+        Mat r1 = rVectors.get(index1);
+        Mat r2 = rVectors.get(index2);
         Mat R1 = new Mat();
         Mat R2 = new Mat();
         Calib3d.Rodrigues(r1, R1);
@@ -249,22 +249,59 @@ public class Utils {
                 Math.random() * 255,
                 Math.random() * 255);
         Imgproc.line(dst,
-                new Point(0,
+                new Point(imagePoints1.get(0, 0)[0],
                         imagePoints1.get(0, 0)[1]),
-                new Point(dst.cols(),
+                new Point(1000 + imagePoints2.get(0, 0)[0],
                         imagePoints2.get(0, 0)[1]),
                 color, 2
         );
-//        Imgproc.circle(dst,
-//                new Point(imagePoints1.get(0, 0)[0], imagePoints1.get(0, 0)[1]),
-//                4,
-//                color,
-//                FILLED);
-//        Imgproc.circle(dst,
-//                new Point(imagePoints1.get(0, 0)[0] + imagePoints2.get(0, 0)[0], imagePoints2.get(0, 0)[1]),
-//                4,
-//                color,
-//                FILLED);
+        Imgproc.circle(dst,
+                new Point(imagePoints1.get(0, 0)[0], imagePoints1.get(0, 0)[1]),
+                4,
+                color,
+                FILLED);
+        Imgproc.circle(dst,
+                new Point(1000 + imagePoints2.get(0, 0)[0], imagePoints2.get(0, 0)[1]),
+                4,
+                color,
+                FILLED);
+
+        Imgproc.line(dst,
+                new Point(imagePoints1.get(35, 0)[0],
+                        imagePoints1.get(35, 0)[1]),
+                new Point(1000 + imagePoints2.get(35, 0)[0],
+                        imagePoints2.get(35, 0)[1]),
+                color, 2
+        );
+        Imgproc.circle(dst,
+                new Point(imagePoints1.get(35, 0)[0], imagePoints1.get(35, 0)[1]),
+                4,
+                color,
+                FILLED);
+        Imgproc.circle(dst,
+                new Point(1000 + imagePoints2.get(35, 0)[0], imagePoints2.get(35, 0)[1]),
+                4,
+                color,
+                FILLED);
+
+        Imgproc.line(dst,
+                new Point(imagePoints1.get(45, 0)[0],
+                        imagePoints1.get(45, 0)[1]),
+                new Point(1000 + imagePoints2.get(45, 0)[0],
+                        imagePoints2.get(45, 0)[1]),
+                color, 2
+        );
+
+        Imgproc.circle(dst,
+                new Point(imagePoints1.get(45, 0)[0], imagePoints1.get(45, 0)[1]),
+                4,
+                color,
+                FILLED);
+        Imgproc.circle(dst,
+                new Point(1000 + imagePoints2.get(45, 0)[0], imagePoints2.get(45, 0)[1]),
+                4,
+                color,
+                FILLED);
         imwrite("./res/output/epipolar/combined_epipolar.jpg", dst);
     }
 }

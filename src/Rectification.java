@@ -1,13 +1,14 @@
 import models.RectificationModel;
 import models.RectifyModel;
-import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Range;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
 import static org.opencv.calib3d.Calib3d.decomposeProjectionMatrix;
-import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 public class Rectification {
 
@@ -30,18 +31,18 @@ public class Rectification {
         Mat rectifiedImage1 = new Mat();
         Mat rectifiedImage2 = new Mat();
         Imgproc.warpPerspective(image1, rectifiedImage1, rectificationModel.getT1(), new Size(1000, 500));
-        Imgproc.warpPerspective(image2, rectifiedImage2, rectificationModel.getT2(), new Size(1500, 500));
+        Imgproc.warpPerspective(image2, rectifiedImage2, rectificationModel.getT2(), new Size(1000, 500));
 
         // Transform the image points:
-        Mat imagePointsTransformed1 = new Mat();
-        Mat imagePointsTransformed2 = new Mat();
+        Mat rectifiedImagePoints1 = new Mat();
+        Mat rectifiedImagePoints2 = new Mat();
 
-        Core.perspectiveTransform(imagePoints1, imagePointsTransformed1, rectificationModel.getT1());
-        Core.perspectiveTransform(imagePoints2, imagePointsTransformed2, rectificationModel.getT2());
+        Core.perspectiveTransform(imagePoints1, rectifiedImagePoints1, rectificationModel.getT1());
+        Core.perspectiveTransform(imagePoints2, rectifiedImagePoints2, rectificationModel.getT2());
 
         return new RectificationModel(
                 rectifiedImage1, rectifiedImage2,
-                imagePointsTransformed1, imagePointsTransformed2);
+                rectifiedImagePoints1, rectifiedImagePoints2);
     }
 
     /**
@@ -58,10 +59,10 @@ public class Rectification {
         Mat A2 = new Mat();
         Mat R1 = new Mat();
         Mat R2 = new Mat();
-        Mat t1_new = new Mat();
-        Mat t2_new = new Mat();
-        decomposeProjectionMatrix(Po1, A1, R1, t1_new);
-        decomposeProjectionMatrix(Po2, A2, R2, t2_new);
+        Mat t1 = new Mat();
+        Mat t2 = new Mat();
+        decomposeProjectionMatrix(Po1, A1, R1, t1);
+        decomposeProjectionMatrix(Po2, A2, R2, t2);
 
         Mat c1 = new Mat();
         Mat c2 = new Mat();
@@ -82,15 +83,12 @@ public class Rectification {
         Core.transpose(v1, v1_transposed);
         Core.transpose(v2, v2_transposed);
         Core.transpose(v3, v3_transposed);
-        double v1_norm = Core.norm(v1);
-        double v2_norm = Core.norm(v2);
-        double v3_norm = Core.norm(v3);
         Mat row1 = new Mat();
         Mat row2 = new Mat();
         Mat row3 = new Mat();
-        v1_transposed.convertTo(row1, v1_transposed.type(), 1 / v1_norm);
-        v2_transposed.convertTo(row2, v2_transposed.type(), 1 / v2_norm);
-        v3_transposed.convertTo(row3, v3_transposed.type(), 1 / v3_norm);
+        v1_transposed.convertTo(row1, v1_transposed.type(), 1 / Core.norm(v1));
+        v2_transposed.convertTo(row2, v2_transposed.type(), 1 / Core.norm(v2));
+        v3_transposed.convertTo(row3, v3_transposed.type(), 1 / Core.norm(v3));
         Mat R = new Mat();
         Core.vconcat(List.of(row1, row2, row3), R);
 
@@ -99,27 +97,27 @@ public class Rectification {
         Mat A = new Mat();
         A_sum.convertTo(A, A_sum.type(), 0.5);
         A.put(0, 1, 0); // set skew to zero
-//        A.put(0, 2, A.get(0, 2)[0] - 300); // to recenter
+//        A.put(0, 2, A.get(0, 2)[0] - 500); // to recenter, not always needed
 
         Mat R_times_c1_neg = new Mat();
         Mat R_times_c2_neg = new Mat();
         Core.gemm(R, c1, -1, new Mat(), 0, R_times_c1_neg, 0);
         Core.gemm(R, c2, -1, new Mat(), 0, R_times_c2_neg, 0);
-        Mat bracket1 = new Mat();
-        Mat bracket2 = new Mat();
-        Core.hconcat(List.of(R, R_times_c1_neg), bracket1);
-        Core.hconcat(List.of(R, R_times_c2_neg), bracket2);
+        Mat R_times_R_times_c1_neg = new Mat();
+        Mat R_times_R_times_c2_neg = new Mat();
+        Core.hconcat(List.of(R, R_times_c1_neg), R_times_R_times_c1_neg);
+        Core.hconcat(List.of(R, R_times_c2_neg), R_times_R_times_c2_neg);
 
         Mat Pn1 = new Mat();
         Mat Pn2 = new Mat();
-        Core.gemm(A, bracket1, 1, new Mat(), 0, Pn1, 0);
-        Core.gemm(A, bracket2, 1, new Mat(), 0, Pn2, 0);
+        Core.gemm(A, R_times_R_times_c1_neg, 1, new Mat(), 0, Pn1, 0);
+        Core.gemm(A, R_times_R_times_c2_neg, 1, new Mat(), 0, Pn2, 0);
 
-        Mat PPM1_sub_col = Po1.colRange(new Range(0, 3));
-        Mat PPM2_sub_col = Po2.colRange(new Range(0, 3));
+        Mat Po1_sub_col = Po1.colRange(new Range(0, 3));
+        Mat Po2_sub_col = Po2.colRange(new Range(0, 3));
 
-        Mat PPM1_sub = PPM1_sub_col.rowRange(new Range(0, 3));
-        Mat PPM2_sub = PPM2_sub_col.rowRange(new Range(0, 3));
+        Mat Po1_sub = Po1_sub_col.rowRange(new Range(0, 3));
+        Mat Po2_sub = Po2_sub_col.rowRange(new Range(0, 3));
 
         Mat Pn1_sub_col = Pn1.colRange(new Range(0, 3));
         Mat Pn2_sub_col = Pn2.colRange(new Range(0, 3));
@@ -127,8 +125,8 @@ public class Rectification {
         Mat Pn2_sub = Pn2_sub_col.rowRange(new Range(0, 3));
         Mat T1 = new Mat();
         Mat T2 = new Mat();
-        Core.gemm(Pn1_sub, PPM1_sub.inv(), 1, new Mat(), 0, T1, 0);
-        Core.gemm(Pn2_sub, PPM2_sub.inv(), 1, new Mat(), 0, T2, 0);
+        Core.gemm(Pn1_sub, Po1_sub.inv(), 1, new Mat(), 0, T1, 0);
+        Core.gemm(Pn2_sub, Po2_sub.inv(), 1, new Mat(), 0, T2, 0);
         return new RectifyModel(T1, T2, Pn1, Pn2);
     }
 
