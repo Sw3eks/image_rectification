@@ -145,13 +145,13 @@ public class Calibration {
         for (Mat image : images) {
             obj = new MatOfPoint3f();
             createKnownBoardPosition();
-            Mat grayimg = new Mat();
-            Imgproc.cvtColor(image, grayimg, Imgproc.COLOR_BGR2GRAY);
+            Mat grayImg = new Mat();
+            Imgproc.cvtColor(image, grayImg, Imgproc.COLOR_BGR2GRAY);
             MatOfPoint2f pointBuf = new MatOfPoint2f();
-            boolean found = findChessboardCorners(grayimg, chessboardDimensions, pointBuf, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
+            boolean found = findChessboardCorners(grayImg, chessboardDimensions, pointBuf, CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE);
             if (found) {
                 TermCriteria term = new TermCriteria(TermCriteria.EPS | TermCriteria.MAX_ITER, 30, 0.1);
-                Imgproc.cornerSubPix(grayimg, pointBuf, new Size(11, 11), new Size(-1, -1), term);
+                Imgproc.cornerSubPix(grayImg, pointBuf, new Size(11, 11), new Size(-1, -1), term);
 
                 this.imagePoints.add(pointBuf);
                 this.objectPoints.add(obj);

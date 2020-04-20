@@ -22,6 +22,16 @@ public class Utils {
     private Mat imageOne;
     private Mat imageTwo;
 
+    /**
+     * Draws computed Epilines on the given images
+     * Detects feature Points if point Inputs are null
+     *
+     * @param firstImage        image 1 for calculation
+     * @param secondImage       image 2 for calculation
+     * @param firstImagePoints  points for image 1
+     * @param secondImagePoints points for image 2
+     * @return List of matches and images with epiLines
+     */
     public List<Mat> computeEpiLines(Mat firstImage, Mat secondImage, Mat firstImagePoints, Mat secondImagePoints) {
         this.imageOne = firstImage;
         this.imageTwo = secondImage;
@@ -45,6 +55,12 @@ public class Utils {
         return Arrays.asList(good_matches_1, good_matches_2, imageOne, imageTwo);
     }
 
+    /**
+     * Computes the fundamental Matrix with the 8Point algorithm
+     * if matches are empty, detects matches and then computes with ransac
+     *
+     * @return computed fundamental matrix
+     */
     private Mat fundamentalMat() {
 
         List<MatOfPoint2f> matches;
@@ -166,6 +182,12 @@ public class Utils {
         return descriptors;
     }
 
+    /**
+     * Draws the given lines on corresponding images
+     *
+     * @param lines_1 lines for image 1
+     * @param lines_2 lines for image 2
+     */
     void drawEpilines(Mat lines_1, Mat lines_2) {
 
         int epiLinesCount = lines_1.rows();
@@ -206,6 +228,17 @@ public class Utils {
         }
     }
 
+    /**
+     * Calculates projection matrices for the given indices
+     * Results are saved in a txt file with the given fileName
+     *
+     * @param fileName  name for the saved file
+     * @param rVectors  rotation vectors
+     * @param tVectors  translation vectors
+     * @param intrinsic camera matrix
+     * @param index1    index for image 1
+     * @param index2    index for image 2
+     */
     public void calculatePPM(String fileName, List<Mat> rVectors, List<Mat> tVectors, Mat intrinsic, int index1, int index2) {
         Mat r1 = rVectors.get(index1);
         Mat r2 = rVectors.get(index2);
@@ -240,6 +273,17 @@ public class Utils {
         imwrite("./res/output/undistorted/undistorted" + index + ".jpg", undistortedImage);
     }
 
+
+    /**
+     * Utility function which draws 3 lines on the dst image connecting
+     * points of image 1 and image 2
+     * result is saved in /res/output/epipolar
+     *
+     * @param imageOne     image 1 for drawing
+     * @param imageTwo     image 2 for drawing
+     * @param imagePoints1 points for image 1
+     * @param imagePoints2 points for image 2
+     */
     public void mergeImagesAndDrawLine(Mat imageOne, Mat imageTwo, Mat imagePoints1, Mat imagePoints2) {
         Mat dst = new Mat();
         List<Mat> src = Arrays.asList(imageOne, imageTwo);

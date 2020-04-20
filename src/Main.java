@@ -1,4 +1,3 @@
-import matcher.MatchingPointsDetector;
 import models.CalibrationModel;
 import models.RectificationModel;
 import org.opencv.core.*;
@@ -46,10 +45,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        // loads the 2 images for rectification
-//        Mat calibration_image_1 = Imgcodecs.imread(IMAGE_PATH + "toolkit_image1.jpg");
-//        Mat calibration_image_2 = Imgcodecs.imread(IMAGE_PATH + "toolkit_image2.jpg");
-
 
         Mat calibration_image_1 = Imgcodecs.imread(OUTPUT_PATH + "calibration/calib" + index_image_1 + ".jpg");
         Mat calibration_image_2 = Imgcodecs.imread(OUTPUT_PATH + "calibration/calib" + index_image_2 + ".jpg");
@@ -83,8 +78,6 @@ public class Main {
         PPM1 = result.get(0);
         PPM2 = result.get(1);
 
-        //utils.mergeImagesAndDrawLine(calibration_image_1, calibration_image_2,
-        //       calibrationModel.getCalibrationImagePoints1(),calibrationModel.getCalibrationImagePoints2());
         // rectification process
         RectificationModel rectiResults = rectification.doRectification(PPM1, PPM2,
                 calibration_image_1,
@@ -102,6 +95,7 @@ public class Main {
 //                rectiResults.getRectifiedImagePoints2());
 //        imwrite("./res/output/epipolar/epipolar_output_3.jpg", result.get(2));
 //        imwrite("./res/output/epipolar/epipolar_output_4.jpg", result.get(3));
+
         // detects and matches keyPoints and draws epiLines in 1 combined image
 //        MatchingPointsDetector detector = new MatchingPointsDetector(image_1, image_2);
 //        detector.matchImages(calibrationModel.getCalibrationImagePoints1(), calibrationModel.getCalibrationImagePoints1());

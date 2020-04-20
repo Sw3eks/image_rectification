@@ -13,7 +13,6 @@ public class CalibrationUtils {
 
     /**
      * Util function to save Camera Projection Matrices
-     * <p>
      *
      * @param fileName name of the file with the saved values
      * @param PPM1     input projection matrix 1
